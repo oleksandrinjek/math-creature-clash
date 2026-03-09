@@ -1,14 +1,45 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useBattleState } from "@/hooks/useBattleState";
 import CreatureCard from "./CreatureCard";
-import NumberResource from "./NumberResource";
-import EquationSlot from "./EquationSlot";
 import Projectile from "./Projectile";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const BattleArena = () => {
-  const { state, placeNumber, clearSlots, fireAttack, resetBattle, opSymbol } = useBattleState();
-  const canFire = state.slot1 !== null && state.slot2 !== null && state.isPlayerTurn && !state.gameOver;
+  const { state, setInput, submitAnswer, resetBattle } = useBattleState();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [elapsed, setElapsed] = useState(0);
+
+  // Auto-focus input
+  useEffect(() => {
+    if (state.isPlayerTurn && !state.gameOver) {
+      inputRef.current?.focus();
+    }
+  }, [state.isPlayerTurn, state.gameOver, state.currentProblem]);
+
+  // Timer
+  useEffect(() => {
+    if (!state.isPlayerTurn || state.gameOver || !state.problemStartTime) return;
+    const interval = setInterval(() => {
+      setElapsed(Math.max(0, (Date.now() - state.problemStartTime!) / 1000));
+    }, 100);
+    return () => clearInterval(interval);
+  }, [state.isPlayerTurn, state.gameOver, state.problemStartTime]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && state.playerInput) {
+      submitAnswer();
+    }
+  };
+
+  // Damage indicator based on time
+  const getDamagePreview = () => {
+    if (!state.isPlayerTurn) return null;
+    const dmg = Math.max(5, Math.round(25 - elapsed * 2.5));
+    return dmg;
+  };
+
+  const damagePreview = getDamagePreview();
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
@@ -17,21 +48,22 @@ const BattleArena = () => {
         <h1 className="font-display text-2xl sm:text-3xl font-bold text-creature-bone tracking-wide">
           Mathematic Battles
         </h1>
+        <p className="text-xs font-mono text-muted-foreground">Раунд {state.round}</p>
       </div>
 
       {/* Enemy Zone */}
-      <div className="flex-1 flex items-center justify-center relative">
+      <div className="flex-1 flex items-center justify-center relative min-h-0">
         <CreatureCard
           name={state.enemyCreature.name}
           health={state.enemyCreature.health}
           maxHealth={state.enemyCreature.maxHealth}
           side="enemy"
           isActive={!state.isPlayerTurn && !state.gameOver}
-          operation="Вычитание"
+          operation="Тень"
         />
       </div>
 
-      {/* Arena Center - Projectiles & Status */}
+      {/* Arena Center */}
       <div className="relative h-20 flex items-center justify-center">
         <AnimatePresence>
           {state.projectile && (
@@ -39,9 +71,20 @@ const BattleArena = () => {
           )}
         </AnimatePresence>
 
-        {!state.gameOver && (
+        {state.feedback && (
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className={`text-lg font-mono font-bold ${state.feedback.correct ? "text-player-energy text-glow-cyan" : "text-destructive"}`}
+          >
+            {state.feedback.correct ? `Верно! −${state.feedback.damage} HP` : "Мимо!"}
+          </motion.span>
+        )}
+
+        {!state.feedback && !state.gameOver && (
           <span className={`text-sm font-mono uppercase tracking-widest ${state.isPlayerTurn ? "text-player-energy text-glow-cyan" : "text-enemy-energy text-glow-magenta"}`}>
-            {state.isPlayerTurn ? "Ваш ход" : "Ход противника..."}
+            {state.isPlayerTurn ? "Решай!" : "Атака врага..."}
           </span>
         )}
 
@@ -66,7 +109,7 @@ const BattleArena = () => {
       </div>
 
       {/* Player Zone */}
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center min-h-0">
         <CreatureCard
           name={state.playerCreature.name}
           health={state.playerCreature.health}
@@ -79,45 +122,59 @@ const BattleArena = () => {
 
       {/* Workstation */}
       <div className="border-t border-border bg-card px-4 py-4 space-y-3">
-        {/* Equation Assembly */}
-        <div className="flex items-center justify-center gap-3">
-          <EquationSlot value={state.slot1} label="Арг. 1" />
-          <span className="text-2xl font-mono text-player-energy text-glow-cyan mt-4">{opSymbol}</span>
-          <EquationSlot value={state.slot2} label="Арг. 2" />
-          <div className="flex flex-col gap-1 mt-4">
-            <motion.button
-              onClick={fireAttack}
-              disabled={!canFire}
-              className="px-4 py-2 rounded-md font-mono text-sm font-bold bg-muted text-player-energy border border-player-energy disabled:opacity-20 disabled:border-border disabled:text-muted-foreground transition-all"
-              whileHover={canFire ? { boxShadow: "0 0 20px hsl(180 100% 50% / 0.5)" } : {}}
-              whileTap={canFire ? { scale: 0.95 } : {}}
-            >
-              Огонь!
-            </motion.button>
-            <button
-              onClick={clearSlots}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono"
-            >
-              Сброс
-            </button>
-          </div>
-        </div>
+        {/* Problem Display */}
+        {state.currentProblem && !state.gameOver && (
+          <div className="flex flex-col items-center gap-3">
+            {/* Timer & damage preview */}
+            <div className="flex items-center gap-4 text-xs font-mono">
+              <span className="text-muted-foreground">⏱ {elapsed.toFixed(1)}с</span>
+              {damagePreview && (
+                <span className={`${damagePreview > 15 ? "text-player-energy" : damagePreview > 8 ? "text-creature-bone" : "text-health-low"}`}>
+                  Урон: ~{damagePreview}
+                </span>
+              )}
+            </div>
 
-        {/* Number Resources */}
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {state.availableNumbers.map((num, i) => (
-            <NumberResource
-              key={`${i}-${num}`}
-              value={num}
-              index={i}
-              onPlace={placeNumber}
-              disabled={!state.isPlayerTurn || state.gameOver || (state.slot1 !== null && state.slot2 !== null)}
-            />
-          ))}
-        </div>
+            {/* The problem */}
+            <div className="flex items-center gap-3">
+              <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
+                {state.currentProblem.a}
+              </span>
+              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">×</span>
+              <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
+                {state.currentProblem.b}
+              </span>
+              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">=</span>
+
+              {/* Input */}
+              <input
+                ref={inputRef}
+                type="text"
+                inputMode="numeric"
+                value={state.playerInput}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!state.isPlayerTurn || state.gameOver}
+                placeholder="?"
+                className="w-20 sm:w-24 h-14 sm:h-16 text-center text-3xl sm:text-4xl font-mono font-bold rounded-md border-2 border-border bg-slot-empty text-foreground placeholder:text-muted-foreground focus:border-player-energy focus:outline-none focus:ring-0 transition-colors disabled:opacity-30"
+                autoComplete="off"
+              />
+
+              <motion.button
+                onClick={submitAnswer}
+                disabled={!state.isPlayerTurn || !state.playerInput || state.gameOver}
+                className="w-14 h-14 sm:h-16 rounded-md border border-player-energy bg-muted text-player-energy flex items-center justify-center disabled:opacity-20 disabled:border-border disabled:text-muted-foreground transition-all"
+                whileHover={state.playerInput ? { boxShadow: "0 0 20px hsl(180 100% 50% / 0.5)" } : {}}
+                whileTap={state.playerInput ? { scale: 0.95 } : {}}
+              >
+                <Send size={20} />
+              </motion.button>
+            </div>
+          </div>
+        )}
 
         {/* Battle Log */}
-        <div className="max-h-16 overflow-y-auto text-xs font-mono text-muted-foreground space-y-0.5 scrollbar-thin">
+        <div className="max-h-14 overflow-y-auto text-xs font-mono text-muted-foreground space-y-0.5">
           {state.battleLog.slice(-3).map((log, i) => (
             <p key={i}>{log}</p>
           ))}
