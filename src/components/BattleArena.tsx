@@ -1,14 +1,25 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useBattleState } from "@/hooks/useBattleState";
+import { usePlayerProgress } from "@/hooks/usePlayerProgress";
 import CreatureCard from "./CreatureCard";
 import Projectile from "./Projectile";
+import PlayerHUD from "./PlayerHUD";
 import { RotateCcw, Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 
 const BattleArena = () => {
-  const { state, setInput, submitAnswer, resetBattle } = useBattleState();
+  const { progress, levelUp, addRewards, getEnemyScale } = usePlayerProgress();
+  const enemyConfig = useMemo(() => getEnemyScale(progress.level), [progress.level, getEnemyScale]);
+  const { state, setInput, submitAnswer, resetBattle } = useBattleState(enemyConfig);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
+
+  // Collect rewards
+  useEffect(() => {
+    if (state.pendingReward) {
+      addRewards(state.pendingReward.xp, state.pendingReward.coins);
+    }
+  }, [state.pendingReward, addRewards]);
 
   // Auto-focus input
   useEffect(() => {
@@ -32,24 +43,17 @@ const BattleArena = () => {
     }
   };
 
-  // Damage indicator based on time
   const getDamagePreview = () => {
     if (!state.isPlayerTurn) return null;
-    const dmg = Math.max(5, Math.round(25 - elapsed * 2.5));
-    return dmg;
+    return Math.max(5, Math.round(25 - elapsed * 2.5));
   };
 
   const damagePreview = getDamagePreview();
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
-      {/* Title */}
-      <div className="text-center pt-3 pb-1">
-        <h1 className="font-display text-2xl sm:text-3xl font-bold text-creature-bone tracking-wide">
-          Mathematic Battles
-        </h1>
-        <p className="text-xs font-mono text-muted-foreground">Раунд {state.round}</p>
-      </div>
+      {/* HUD */}
+      <PlayerHUD progress={progress} levelUp={levelUp} />
 
       {/* Enemy Zone */}
       <div className="flex-1 flex items-center justify-center relative min-h-0">
@@ -72,14 +76,21 @@ const BattleArena = () => {
         </AnimatePresence>
 
         {state.feedback && (
-          <motion.span
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className={`text-lg font-mono font-bold ${state.feedback.correct ? "text-player-energy text-glow-cyan" : "text-destructive"}`}
+            className="flex flex-col items-center"
           >
-            {state.feedback.correct ? `Верно! −${state.feedback.damage} HP` : "Мимо!"}
-          </motion.span>
+            <span className={`text-lg font-mono font-bold ${state.feedback.correct ? "text-player-energy text-glow-cyan" : "text-destructive"}`}>
+              {state.feedback.correct ? `Верно! −${state.feedback.damage} HP` : "Мимо!"}
+            </span>
+            {state.pendingReward && (
+              <span className="text-xs font-mono text-accent">
+                +{state.pendingReward.xp} XP · +{state.pendingReward.coins} 🪙
+              </span>
+            )}
+          </motion.div>
         )}
 
         {!state.feedback && !state.gameOver && (
@@ -97,8 +108,14 @@ const BattleArena = () => {
             <span className={`text-xl font-display font-bold ${state.winner === "player" ? "text-player-energy text-glow-cyan" : "text-enemy-energy text-glow-magenta"}`}>
               {state.winner === "player" ? "Победа!" : "Поражение!"}
             </span>
+            {state.winner === "player" && (
+              <span className="text-xs font-mono text-accent">Бонус победы: +20 XP · +15 🪙</span>
+            )}
             <button
-              onClick={resetBattle}
+              onClick={() => {
+                if (state.winner === "player") addRewards(20, 15);
+                resetBattle();
+              }}
               className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
             >
               <RotateCcw size={14} />
@@ -122,10 +139,8 @@ const BattleArena = () => {
 
       {/* Workstation */}
       <div className="border-t border-border bg-card px-4 py-4 space-y-3">
-        {/* Problem Display */}
         {state.currentProblem && !state.gameOver && (
           <div className="flex flex-col items-center gap-3">
-            {/* Timer & damage preview */}
             <div className="flex items-center gap-4 text-xs font-mono">
               <span className="text-muted-foreground">⏱ {elapsed.toFixed(1)}с</span>
               {damagePreview && (
@@ -135,7 +150,6 @@ const BattleArena = () => {
               )}
             </div>
 
-            {/* The problem */}
             <div className="flex items-center gap-3">
               <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.a}
@@ -146,7 +160,6 @@ const BattleArena = () => {
               </span>
               <span className="text-3xl sm:text-4xl font-mono text-creature-bone">=</span>
 
-              {/* Input */}
               <input
                 ref={inputRef}
                 type="text"
@@ -173,13 +186,33 @@ const BattleArena = () => {
           </div>
         )}
 
-        {/* Battle Log */}
         <div className="max-h-14 overflow-y-auto text-xs font-mono text-muted-foreground space-y-0.5">
           {state.battleLog.slice(-3).map((log, i) => (
             <p key={i}>{log}</p>
           ))}
         </div>
       </div>
+
+      {/* Level up overlay */}
+      <AnimatePresence>
+        {levelUp && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center pointer-events-none z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              className="text-4xl font-display font-bold text-accent text-glow-cyan"
+            >
+              Уровень {progress.level}!
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

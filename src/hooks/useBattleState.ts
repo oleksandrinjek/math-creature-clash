@@ -13,6 +13,11 @@ export interface MathProblem {
   answer: number;
 }
 
+export interface RoundReward {
+  xp: number;
+  coins: number;
+}
+
 export interface BattleState {
   playerCreature: Creature;
   enemyCreature: Creature;
@@ -26,6 +31,7 @@ export interface BattleState {
   problemStartTime: number | null;
   feedback: { correct: boolean; damage: number } | null;
   round: number;
+  pendingReward: RoundReward | null;
 }
 
 const generateProblem = (round: number): MathProblem => {
@@ -37,19 +43,25 @@ const generateProblem = (round: number): MathProblem => {
 
 const calcDamage = (elapsedMs: number, correct: boolean): number => {
   if (!correct) return 0;
-  // Max damage 25 at instant, min 5 after 10s
   const seconds = elapsedMs / 1000;
   return Math.max(5, Math.round(25 - seconds * 2.5));
 };
 
-export const useBattleState = () => {
+interface EnemyConfig {
+  enemyHp: number;
+  enemyMinDmg: number;
+  enemyMaxDmg: number;
+  enemyName: string;
+}
+
+export const useBattleState = (enemyConfig: EnemyConfig) => {
   const timerRef = useRef<number | null>(null);
 
-  const [state, setState] = useState<BattleState>(() => {
+  const createInitialState = useCallback((): BattleState => {
     const problem = generateProblem(1);
     return {
       playerCreature: { id: "player", name: "Умножитель", health: 100, maxHealth: 100 },
-      enemyCreature: { id: "enemy", name: "Теневик", health: 100, maxHealth: 100 },
+      enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
       currentProblem: problem,
       playerInput: "",
       isPlayerTurn: true,
@@ -60,13 +72,15 @@ export const useBattleState = () => {
       problemStartTime: Date.now(),
       feedback: null,
       round: 1,
+      pendingReward: null,
     };
-  });
+  }, [enemyConfig]);
+
+  const [state, setState] = useState<BattleState>(createInitialState);
 
   const setInput = useCallback((val: string) => {
     setState((prev) => {
       if (!prev.isPlayerTurn || prev.gameOver) return prev;
-      // Only allow digits
       if (val && !/^\d+$/.test(val)) return prev;
       return { ...prev, playerInput: val };
     });
@@ -90,6 +104,10 @@ export const useBattleState = () => {
 
       const gameOver = newEnemyHealth <= 0;
 
+      // Calculate rewards on correct answer
+      const roundXp = correct ? Math.max(5, Math.round(15 - (elapsed / 1000))) : 0;
+      const roundCoins = correct ? Math.max(1, Math.round(10 - (elapsed / 1000))) : 0;
+
       return {
         ...prev,
         enemyCreature: { ...prev.enemyCreature, health: newEnemyHealth },
@@ -100,20 +118,20 @@ export const useBattleState = () => {
         feedback: { correct, damage },
         gameOver,
         winner: gameOver ? "player" : null,
+        pendingReward: correct ? { xp: roundXp, coins: roundCoins } : null,
       };
     });
 
-    // Clear projectile & enemy attacks after delay
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = window.setTimeout(() => {
       setState((prev) => {
         if (prev.gameOver) return { ...prev, projectile: null, feedback: null };
 
-        // Enemy turn - random damage 5-15
-        const enemyDamage = Math.floor(Math.random() * 11) + 5;
+        const { enemyMinDmg, enemyMaxDmg } = enemyConfig;
+        const enemyDamage = Math.floor(Math.random() * (enemyMaxDmg - enemyMinDmg + 1)) + enemyMinDmg;
         const newPlayerHealth = Math.max(0, prev.playerCreature.health - enemyDamage);
-        const log = `Теневик атакует → ${enemyDamage} урона!`;
+        const log = `${prev.enemyCreature.name} атакует → ${enemyDamage} урона!`;
         const gameOver = newPlayerHealth <= 0;
         const nextRound = prev.round + 1;
         const nextProblem = generateProblem(nextRound);
@@ -125,43 +143,28 @@ export const useBattleState = () => {
           projectile: { value: enemyDamage, target: "player" },
           isPlayerTurn: true,
           currentProblem: nextProblem,
-          problemStartTime: Date.now() + 800, // account for animation
+          problemStartTime: Date.now() + 800,
           feedback: null,
           gameOver,
           winner: gameOver ? "enemy" : null,
           round: nextRound,
+          pendingReward: null,
         };
       });
 
-      // Clear enemy projectile
       setTimeout(() => {
         setState((prev) => ({ ...prev, projectile: null }));
       }, 800);
     }, 1000);
 
-    // Clear player projectile
     setTimeout(() => {
       setState((prev) => ({ ...prev, projectile: null }));
     }, 700);
-  }, []);
+  }, [enemyConfig]);
 
   const resetBattle = useCallback(() => {
-    const problem = generateProblem(1);
-    setState({
-      playerCreature: { id: "player", name: "Умножитель", health: 100, maxHealth: 100 },
-      enemyCreature: { id: "enemy", name: "Теневик", health: 100, maxHealth: 100 },
-      currentProblem: problem,
-      playerInput: "",
-      isPlayerTurn: true,
-      battleLog: ["Новый бой! Решай примеры быстрее!"],
-      projectile: null,
-      gameOver: false,
-      winner: null,
-      problemStartTime: Date.now(),
-      feedback: null,
-      round: 1,
-    });
-  }, []);
+    setState(createInitialState());
+  }, [createInitialState]);
 
   return { state, setInput, submitAnswer, resetBattle };
 };
