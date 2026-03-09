@@ -1,210 +1,167 @@
-import { useState, useCallback } from "react";
-
-export type MathOperation = "add" | "subtract" | "multiply" | "divide";
+import { useState, useCallback, useRef } from "react";
 
 export interface Creature {
   id: string;
   name: string;
-  operation: MathOperation;
   health: number;
   maxHealth: number;
-  image: string;
+}
+
+export interface MathProblem {
+  a: number;
+  b: number;
+  answer: number;
 }
 
 export interface BattleState {
   playerCreature: Creature;
   enemyCreature: Creature;
-  availableNumbers: number[];
-  slot1: number | null;
-  slot2: number | null;
+  currentProblem: MathProblem | null;
+  playerInput: string;
   isPlayerTurn: boolean;
   battleLog: string[];
   projectile: { value: number; target: "enemy" | "player" } | null;
   gameOver: boolean;
   winner: "player" | "enemy" | null;
+  problemStartTime: number | null;
+  feedback: { correct: boolean; damage: number } | null;
+  round: number;
 }
 
-const generateNumbers = (): number[] => {
-  const nums: number[] = [];
-  for (let i = 0; i < 6; i++) {
-    nums.push(Math.floor(Math.random() * 9) + 1);
-  }
-  return nums;
+const generateProblem = (round: number): MathProblem => {
+  const maxNum = Math.min(4 + Math.floor(round / 3), 12);
+  const a = Math.floor(Math.random() * maxNum) + 2;
+  const b = Math.floor(Math.random() * maxNum) + 2;
+  return { a, b, answer: a * b };
 };
 
-const calcResult = (a: number, b: number, op: MathOperation): number => {
-  switch (op) {
-    case "add": return a + b;
-    case "subtract": return Math.abs(a - b);
-    case "multiply": return a * b;
-    case "divide": return b !== 0 ? Math.round((a / b) * 100) / 100 : 0;
-  }
-};
-
-const opSymbol = (op: MathOperation): string => {
-  switch (op) {
-    case "add": return "+";
-    case "subtract": return "−";
-    case "multiply": return "×";
-    case "divide": return "÷";
-  }
-};
-
-const opName = (op: MathOperation): string => {
-  switch (op) {
-    case "add": return "Суммонер";
-    case "subtract": return "Вычитатель";
-    case "multiply": return "Умножитель";
-    case "divide": return "Делитель";
-  }
+const calcDamage = (elapsedMs: number, correct: boolean): number => {
+  if (!correct) return 0;
+  // Max damage 25 at instant, min 5 after 10s
+  const seconds = elapsedMs / 1000;
+  return Math.max(5, Math.round(25 - seconds * 2.5));
 };
 
 export const useBattleState = () => {
-  const [state, setState] = useState<BattleState>({
-    playerCreature: {
-      id: "player",
-      name: "Умножитель",
-      operation: "multiply",
-      health: 100,
-      maxHealth: 100,
-      image: "player",
-    },
-    enemyCreature: {
-      id: "enemy",
-      name: "Вычитатель",
-      operation: "subtract",
-      health: 100,
-      maxHealth: 100,
-      image: "enemy",
-    },
-    availableNumbers: generateNumbers(),
-    slot1: null,
-    slot2: null,
-    isPlayerTurn: true,
-    battleLog: ["Бой начинается!"],
-    projectile: null,
-    gameOver: false,
-    winner: null,
+  const timerRef = useRef<number | null>(null);
+
+  const [state, setState] = useState<BattleState>(() => {
+    const problem = generateProblem(1);
+    return {
+      playerCreature: { id: "player", name: "Умножитель", health: 100, maxHealth: 100 },
+      enemyCreature: { id: "enemy", name: "Теневик", health: 100, maxHealth: 100 },
+      currentProblem: problem,
+      playerInput: "",
+      isPlayerTurn: true,
+      battleLog: ["Бой начинается! Решай примеры быстрее!"],
+      projectile: null,
+      gameOver: false,
+      winner: null,
+      problemStartTime: Date.now(),
+      feedback: null,
+      round: 1,
+    };
   });
 
-  const placeNumber = useCallback((num: number, index: number) => {
+  const setInput = useCallback((val: string) => {
     setState((prev) => {
       if (!prev.isPlayerTurn || prev.gameOver) return prev;
-      
-      if (prev.slot1 === null) {
-        const newNums = [...prev.availableNumbers];
-        newNums.splice(index, 1);
-        return { ...prev, slot1: num, availableNumbers: newNums };
-      } else if (prev.slot2 === null) {
-        const newNums = [...prev.availableNumbers];
-        newNums.splice(index, 1);
-        return { ...prev, slot2: num, availableNumbers: newNums };
-      }
-      return prev;
+      // Only allow digits
+      if (val && !/^\d+$/.test(val)) return prev;
+      return { ...prev, playerInput: val };
     });
   }, []);
 
-  const clearSlots = useCallback(() => {
+  const submitAnswer = useCallback(() => {
     setState((prev) => {
-      const restored = [...prev.availableNumbers];
-      if (prev.slot1 !== null) restored.push(prev.slot1);
-      if (prev.slot2 !== null) restored.push(prev.slot2);
-      return { ...prev, slot1: null, slot2: null, availableNumbers: restored };
-    });
-  }, []);
+      if (!prev.currentProblem || !prev.isPlayerTurn || prev.gameOver || !prev.playerInput) return prev;
 
-  const fireAttack = useCallback(() => {
-    setState((prev) => {
-      if (prev.slot1 === null || prev.slot2 === null || !prev.isPlayerTurn || prev.gameOver) return prev;
+      const elapsed = Date.now() - (prev.problemStartTime || Date.now());
+      const playerAnswer = parseInt(prev.playerInput, 10);
+      const correct = playerAnswer === prev.currentProblem.answer;
+      const damage = calcDamage(elapsed, correct);
 
-      const result = calcResult(prev.slot1, prev.slot2, prev.playerCreature.operation);
-      const damage = Math.max(1, Math.round(result));
-      const newEnemyHealth = Math.max(0, prev.enemyCreature.health - damage);
-      const sym = opSymbol(prev.playerCreature.operation);
-      const log = `${prev.playerCreature.name}: ${prev.slot1} ${sym} ${prev.slot2} = ${result} → ${damage} урона!`;
+      const newEnemyHealth = correct ? Math.max(0, prev.enemyCreature.health - damage) : prev.enemyCreature.health;
+      const seconds = (elapsed / 1000).toFixed(1);
+
+      const log = correct
+        ? `✓ ${prev.currentProblem.a} × ${prev.currentProblem.b} = ${prev.currentProblem.answer} за ${seconds}с → ${damage} урона!`
+        : `✗ Неправильно! ${prev.currentProblem.a} × ${prev.currentProblem.b} = ${prev.currentProblem.answer}. Пропуск хода.`;
 
       const gameOver = newEnemyHealth <= 0;
 
       return {
         ...prev,
-        slot1: null,
-        slot2: null,
         enemyCreature: { ...prev.enemyCreature, health: newEnemyHealth },
+        playerInput: "",
         battleLog: [...prev.battleLog, log],
-        projectile: { value: damage, target: "enemy" },
+        projectile: correct ? { value: damage, target: "enemy" } : null,
         isPlayerTurn: false,
+        feedback: { correct, damage },
         gameOver,
         winner: gameOver ? "player" : null,
       };
     });
 
-    // Enemy turn after delay
-    setTimeout(() => {
-      setState((prev) => {
-        if (prev.gameOver) return { ...prev, projectile: null };
+    // Clear projectile & enemy attacks after delay
+    if (timerRef.current) clearTimeout(timerRef.current);
 
-        // Enemy picks two random numbers
-        const a = Math.floor(Math.random() * 8) + 1;
-        const b = Math.floor(Math.random() * 8) + 1;
-        const result = calcResult(a, b, prev.enemyCreature.operation);
-        const damage = Math.max(1, Math.round(result));
-        const newPlayerHealth = Math.max(0, prev.playerCreature.health - damage);
-        const sym = opSymbol(prev.enemyCreature.operation);
-        const log = `${prev.enemyCreature.name}: ${a} ${sym} ${b} = ${result} → ${damage} урона!`;
+    timerRef.current = window.setTimeout(() => {
+      setState((prev) => {
+        if (prev.gameOver) return { ...prev, projectile: null, feedback: null };
+
+        // Enemy turn - random damage 5-15
+        const enemyDamage = Math.floor(Math.random() * 11) + 5;
+        const newPlayerHealth = Math.max(0, prev.playerCreature.health - enemyDamage);
+        const log = `Теневик атакует → ${enemyDamage} урона!`;
         const gameOver = newPlayerHealth <= 0;
+        const nextRound = prev.round + 1;
+        const nextProblem = generateProblem(nextRound);
 
         return {
           ...prev,
           playerCreature: { ...prev.playerCreature, health: newPlayerHealth },
           battleLog: [...prev.battleLog, log],
-          projectile: { value: damage, target: "player" },
+          projectile: { value: enemyDamage, target: "player" },
           isPlayerTurn: true,
-          availableNumbers: generateNumbers(),
+          currentProblem: nextProblem,
+          problemStartTime: Date.now() + 800, // account for animation
+          feedback: null,
           gameOver,
           winner: gameOver ? "enemy" : null,
+          round: nextRound,
         };
       });
 
-      // Clear projectile
+      // Clear enemy projectile
       setTimeout(() => {
         setState((prev) => ({ ...prev, projectile: null }));
       }, 800);
-    }, 1200);
+    }, 1000);
 
     // Clear player projectile
     setTimeout(() => {
       setState((prev) => ({ ...prev, projectile: null }));
-    }, 800);
+    }, 700);
   }, []);
 
   const resetBattle = useCallback(() => {
+    const problem = generateProblem(1);
     setState({
-      playerCreature: {
-        id: "player",
-        name: "Умножитель",
-        operation: "multiply",
-        health: 100,
-        maxHealth: 100,
-        image: "player",
-      },
-      enemyCreature: {
-        id: "enemy",
-        name: "Вычитатель",
-        operation: "subtract",
-        health: 100,
-        maxHealth: 100,
-        image: "enemy",
-      },
-      availableNumbers: generateNumbers(),
-      slot1: null,
-      slot2: null,
+      playerCreature: { id: "player", name: "Умножитель", health: 100, maxHealth: 100 },
+      enemyCreature: { id: "enemy", name: "Теневик", health: 100, maxHealth: 100 },
+      currentProblem: problem,
+      playerInput: "",
       isPlayerTurn: true,
-      battleLog: ["Бой начинается!"],
+      battleLog: ["Новый бой! Решай примеры быстрее!"],
       projectile: null,
       gameOver: false,
       winner: null,
+      problemStartTime: Date.now(),
+      feedback: null,
+      round: 1,
     });
   }, []);
 
-  return { state, placeNumber, clearSlots, fireAttack, resetBattle, opSymbol: opSymbol(state.playerCreature.operation) };
+  return { state, setInput, submitAnswer, resetBattle };
 };
