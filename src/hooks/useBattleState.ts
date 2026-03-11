@@ -41,10 +41,10 @@ const generateProblem = (round: number): MathProblem => {
   return { a, b, answer: a * b };
 };
 
-const calcDamage = (elapsedMs: number, correct: boolean): number => {
+const calcDamage = (elapsedMs: number, correct: boolean, bonusDmg: number, bonusTime: number): number => {
   if (!correct) return 0;
-  const seconds = elapsedMs / 1000;
-  return Math.max(5, Math.round(25 - seconds * 2.5));
+  const seconds = Math.max(0, elapsedMs / 1000 - bonusTime);
+  return Math.max(5, Math.round(25 + bonusDmg - seconds * 2.5));
 };
 
 interface EnemyConfig {
@@ -54,13 +54,13 @@ interface EnemyConfig {
   enemyName: string;
 }
 
-export const useBattleState = (enemyConfig: EnemyConfig) => {
+export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100) => {
   const timerRef = useRef<number | null>(null);
 
   const createInitialState = useCallback((): BattleState => {
     const problem = generateProblem(1);
     return {
-      playerCreature: { id: "player", name: "Умножитель", health: 100, maxHealth: 100 },
+      playerCreature: { id: "player", name: "Умножитель", health: playerMaxHp, maxHealth: playerMaxHp },
       enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
       currentProblem: problem,
       playerInput: "",
@@ -74,7 +74,7 @@ export const useBattleState = (enemyConfig: EnemyConfig) => {
       round: 1,
       pendingReward: null,
     };
-  }, [enemyConfig]);
+  }, [enemyConfig, playerMaxHp]);
 
   const [state, setState] = useState<BattleState>(createInitialState);
 
@@ -86,14 +86,14 @@ export const useBattleState = (enemyConfig: EnemyConfig) => {
     });
   }, []);
 
-  const submitAnswer = useCallback(() => {
+  const submitAnswer = useCallback((bonusDmg: number = 0, bonusTime: number = 0) => {
     setState((prev) => {
       if (!prev.currentProblem || !prev.isPlayerTurn || prev.gameOver || !prev.playerInput) return prev;
 
       const elapsed = Date.now() - (prev.problemStartTime || Date.now());
       const playerAnswer = parseInt(prev.playerInput, 10);
       const correct = playerAnswer === prev.currentProblem.answer;
-      const damage = calcDamage(elapsed, correct);
+      const damage = calcDamage(elapsed, correct, bonusDmg, bonusTime);
 
       const newEnemyHealth = correct ? Math.max(0, prev.enemyCreature.health - damage) : prev.enemyCreature.health;
       const seconds = (elapsed / 1000).toFixed(1);
@@ -104,7 +104,6 @@ export const useBattleState = (enemyConfig: EnemyConfig) => {
 
       const gameOver = newEnemyHealth <= 0;
 
-      // Calculate rewards on correct answer
       const roundXp = correct ? Math.max(5, Math.round(15 - (elapsed / 1000))) : 0;
       const roundCoins = correct ? Math.max(1, Math.round(10 - (elapsed / 1000))) : 0;
 
