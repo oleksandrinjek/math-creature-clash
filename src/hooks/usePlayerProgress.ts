@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
+import { useI18n } from "@/hooks/useI18n";
 
 export interface Upgrades {
-  maxHp: number;       // bonus HP
-  bonusDmg: number;    // bonus damage
-  bonusTime: number;   // bonus seconds before decay
+  maxHp: number;
+  bonusDmg: number;
+  bonusTime: number;
 }
 
 export interface PlayerProgress {
@@ -27,36 +28,9 @@ const initialProgress = (): PlayerProgress => ({
 });
 
 export const UPGRADE_DEFS = [
-  {
-    key: "maxHp" as const,
-    label: "Здоровье",
-    icon: "❤️",
-    desc: "+20 макс. HP",
-    baseCost: 15,
-    costScale: 10,
-    perLevel: 20,
-    maxLevel: 10,
-  },
-  {
-    key: "bonusDmg" as const,
-    label: "Сила удара",
-    icon: "⚔️",
-    desc: "+3 к урону",
-    baseCost: 20,
-    costScale: 12,
-    perLevel: 3,
-    maxLevel: 10,
-  },
-  {
-    key: "bonusTime" as const,
-    label: "Доп. время",
-    icon: "⏱",
-    desc: "+1с до снижения урона",
-    baseCost: 25,
-    costScale: 15,
-    perLevel: 1,
-    maxLevel: 5,
-  },
+  { key: "maxHp" as const, baseCost: 15, costScale: 10, perLevel: 20, maxLevel: 10 },
+  { key: "bonusDmg" as const, baseCost: 20, costScale: 12, perLevel: 3, maxLevel: 10 },
+  { key: "bonusTime" as const, baseCost: 25, costScale: 15, perLevel: 1, maxLevel: 5 },
 ] as const;
 
 export const getUpgradeLevel = (upgrades: Upgrades, key: keyof Upgrades): number => {
@@ -73,6 +47,7 @@ export const getUpgradeCost = (upgrades: Upgrades, key: keyof Upgrades): number 
 export const usePlayerProgress = () => {
   const [progress, setProgress] = useState<PlayerProgress>(initialProgress);
   const [levelUp, setLevelUp] = useState(false);
+  const { t } = useI18n();
 
   const addRewards = useCallback((xpGain: number, coinGain: number) => {
     setProgress((prev) => {
@@ -114,13 +89,14 @@ export const usePlayerProgress = () => {
   }, []);
 
   const getEnemyScale = useCallback((level: number) => {
+    const nameKey = level < 3 ? "enemy.shadow" : level < 6 ? "enemy.gloom" : level < 10 ? "enemy.void" : "enemy.absolute";
     return {
       enemyHp: 80 + level * 20,
       enemyMinDmg: 5 + Math.floor(level / 2),
       enemyMaxDmg: 12 + level * 2,
-      enemyName: level < 3 ? "Теневик" : level < 6 ? "Мрачник" : level < 10 ? "Пустотник" : "Абсолют",
+      enemyName: t(nameKey as any),
     };
-  }, []);
+  }, [t]);
 
   return { progress, levelUp, addRewards, buyUpgrade, getEnemyScale };
 };

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useBattleState } from "@/hooks/useBattleState";
 import { PlayerProgress } from "@/hooks/usePlayerProgress";
+import { useI18n } from "@/hooks/useI18n";
 import CreatureCard from "./CreatureCard";
 import Projectile from "./Projectile";
 import PlayerHUD from "./PlayerHUD";
@@ -23,6 +24,7 @@ interface BattleArenaProps {
 }
 
 const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMenu }: BattleArenaProps) => {
+  const { t } = useI18n();
   const playerMaxHp = 100 + progress.upgrades.maxHp;
   const bonusDmg = progress.upgrades.bonusDmg;
   const bonusTime = progress.upgrades.bonusTime;
@@ -31,21 +33,18 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
 
-  // Collect rewards
   useEffect(() => {
     if (state.pendingReward) {
       addRewards(state.pendingReward.xp, state.pendingReward.coins);
     }
   }, [state.pendingReward, addRewards]);
 
-  // Auto-focus input
   useEffect(() => {
     if (state.isPlayerTurn && !state.gameOver) {
       inputRef.current?.focus();
     }
   }, [state.isPlayerTurn, state.gameOver, state.currentProblem]);
 
-  // Timer
   useEffect(() => {
     if (!state.isPlayerTurn || state.gameOver || !state.problemStartTime) return;
     const interval = setInterval(() => {
@@ -70,10 +69,8 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
-      {/* HUD */}
       <PlayerHUD progress={progress} levelUp={levelUp} />
 
-      {/* Enemy Zone */}
       <div className="flex-1 flex items-center justify-center relative min-h-0">
         <CreatureCard
           name={state.enemyCreature.name}
@@ -85,7 +82,6 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
         />
       </div>
 
-      {/* Arena Center */}
       <div className="relative h-20 flex items-center justify-center">
         <AnimatePresence>
           {state.projectile && (
@@ -101,7 +97,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
             className="flex flex-col items-center"
           >
             <span className={`text-lg font-mono font-bold ${state.feedback.correct ? "text-player-energy text-glow-cyan" : "text-destructive"}`}>
-              {state.feedback.correct ? `Верно! −${state.feedback.damage} HP` : "Мимо!"}
+              {state.feedback.correct ? `${t("battle.correct")} −${state.feedback.damage} HP` : t("battle.miss")}
             </span>
             {state.pendingReward && (
               <span className="text-xs font-mono text-accent">
@@ -113,7 +109,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
 
         {!state.feedback && !state.gameOver && (
           <span className={`text-sm font-mono uppercase tracking-widest ${state.isPlayerTurn ? "text-player-energy text-glow-cyan" : "text-enemy-energy text-glow-magenta"}`}>
-            {state.isPlayerTurn ? "Решай!" : "Атака врага..."}
+            {state.isPlayerTurn ? t("battle.solve") : t("battle.enemyTurn")}
           </span>
         )}
 
@@ -124,10 +120,10 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
             className="flex flex-col items-center gap-2"
           >
             <span className={`text-xl font-display font-bold ${state.winner === "player" ? "text-player-energy text-glow-cyan" : "text-enemy-energy text-glow-magenta"}`}>
-              {state.winner === "player" ? "Победа!" : "Поражение!"}
+              {state.winner === "player" ? t("battle.victory") : t("battle.defeat")}
             </span>
             {state.winner === "player" && (
-              <span className="text-xs font-mono text-accent">Бонус победы: +20 XP · +15 🪙</span>
+              <span className="text-xs font-mono text-accent">{t("battle.victoryBonus")} +20 XP · +15 🪙</span>
             )}
             <div className="flex gap-2">
               <button
@@ -138,7 +134,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
               >
                 <Home size={14} />
-                Меню
+                {t("battle.menu")}
               </button>
               <button
                 onClick={() => {
@@ -148,14 +144,13 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
               >
                 <RotateCcw size={14} />
-                Ещё бой
+                {t("battle.again")}
               </button>
             </div>
           </motion.div>
         )}
       </div>
 
-      {/* Player Zone */}
       <div className="flex-1 flex items-center justify-center min-h-0">
         <CreatureCard
           name={state.playerCreature.name}
@@ -167,15 +162,14 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
         />
       </div>
 
-      {/* Workstation */}
       <div className="border-t border-border bg-card px-4 py-4 space-y-3">
         {state.currentProblem && !state.gameOver && (
           <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-4 text-xs font-mono">
-              <span className="text-muted-foreground">⏱ {elapsed.toFixed(1)}с</span>
+              <span className="text-muted-foreground">⏱ {elapsed.toFixed(1)}s</span>
               {damagePreview && (
                 <span className={`${damagePreview > 15 ? "text-player-energy" : damagePreview > 8 ? "text-creature-bone" : "text-health-low"}`}>
-                  Урон: ~{damagePreview}
+                  {t("battle.damage")} ~{damagePreview}
                 </span>
               )}
             </div>
@@ -223,7 +217,6 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
         </div>
       </div>
 
-      {/* Level up overlay */}
       <AnimatePresence>
         {levelUp && (
           <motion.div
@@ -238,7 +231,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
               exit={{ scale: 1.5, opacity: 0 }}
               className="text-4xl font-display font-bold text-accent text-glow-cyan"
             >
-              Уровень {progress.level}!
+              {t("hud.level")} {progress.level}!
             </motion.div>
           </motion.div>
         )}
