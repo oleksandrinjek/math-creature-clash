@@ -1,16 +1,33 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useBattleState } from "@/hooks/useBattleState";
-import { usePlayerProgress } from "@/hooks/usePlayerProgress";
+import { PlayerProgress } from "@/hooks/usePlayerProgress";
 import CreatureCard from "./CreatureCard";
 import Projectile from "./Projectile";
 import PlayerHUD from "./PlayerHUD";
-import { RotateCcw, Send } from "lucide-react";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { RotateCcw, Send, Home } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-const BattleArena = () => {
-  const { progress, levelUp, addRewards, getEnemyScale } = usePlayerProgress();
-  const enemyConfig = useMemo(() => getEnemyScale(progress.level), [progress.level, getEnemyScale]);
-  const { state, setInput, submitAnswer, resetBattle } = useBattleState(enemyConfig);
+interface EnemyConfig {
+  enemyHp: number;
+  enemyMinDmg: number;
+  enemyMaxDmg: number;
+  enemyName: string;
+}
+
+interface BattleArenaProps {
+  progress: PlayerProgress;
+  levelUp: boolean;
+  addRewards: (xp: number, coins: number) => void;
+  enemyConfig: EnemyConfig;
+  onReturnToMenu: () => void;
+}
+
+const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMenu }: BattleArenaProps) => {
+  const playerMaxHp = 100 + progress.upgrades.maxHp;
+  const bonusDmg = progress.upgrades.bonusDmg;
+  const bonusTime = progress.upgrades.bonusTime;
+
+  const { state, setInput, submitAnswer, resetBattle } = useBattleState(enemyConfig, playerMaxHp);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
 
@@ -39,13 +56,14 @@ const BattleArena = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && state.playerInput) {
-      submitAnswer();
+      submitAnswer(bonusDmg, bonusTime);
     }
   };
 
   const getDamagePreview = () => {
     if (!state.isPlayerTurn) return null;
-    return Math.max(5, Math.round(25 - elapsed * 2.5));
+    const adjustedElapsed = Math.max(0, elapsed - bonusTime);
+    return Math.max(5, Math.round(25 + bonusDmg - adjustedElapsed * 2.5));
   };
 
   const damagePreview = getDamagePreview();
@@ -111,16 +129,28 @@ const BattleArena = () => {
             {state.winner === "player" && (
               <span className="text-xs font-mono text-accent">Бонус победы: +20 XP · +15 🪙</span>
             )}
-            <button
-              onClick={() => {
-                if (state.winner === "player") addRewards(20, 15);
-                resetBattle();
-              }}
-              className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
-            >
-              <RotateCcw size={14} />
-              Новый бой
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (state.winner === "player") addRewards(20, 15);
+                  onReturnToMenu();
+                }}
+                className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
+              >
+                <Home size={14} />
+                Меню
+              </button>
+              <button
+                onClick={() => {
+                  if (state.winner === "player") addRewards(20, 15);
+                  resetBattle();
+                }}
+                className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
+              >
+                <RotateCcw size={14} />
+                Ещё бой
+              </button>
+            </div>
           </motion.div>
         )}
       </div>
@@ -174,7 +204,7 @@ const BattleArena = () => {
               />
 
               <motion.button
-                onClick={submitAnswer}
+                onClick={() => submitAnswer(bonusDmg, bonusTime)}
                 disabled={!state.isPlayerTurn || !state.playerInput || state.gameOver}
                 className="w-14 h-14 sm:h-16 rounded-md border border-player-energy bg-muted text-player-energy flex items-center justify-center disabled:opacity-20 disabled:border-border disabled:text-muted-foreground transition-all"
                 whileHover={state.playerInput ? { boxShadow: "0 0 20px hsl(180 100% 50% / 0.5)" } : {}}
