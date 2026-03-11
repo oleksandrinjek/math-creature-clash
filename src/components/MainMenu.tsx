@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Swords, Shield, Zap, Clock } from "lucide-react";
-import { PlayerProgress, Upgrades, UPGRADE_DEFS, getUpgradeLevel, getUpgradeCost } from "@/hooks/usePlayerProgress";
+import { PlayerProgress, Upgrades, getUpgradeLevel, getUpgradeCost } from "@/hooks/usePlayerProgress";
+import { useI18n, LANG_LABELS, Lang } from "@/hooks/useI18n";
 
 interface MainMenuProps {
   progress: PlayerProgress;
@@ -14,11 +15,39 @@ const ICONS = {
   bonusTime: Clock,
 };
 
+const UPGRADE_KEYS = [
+  { key: "maxHp" as const, icon: "maxHp" as const, labelKey: "upgrade.maxHp.label" as const, descKey: "upgrade.maxHp.desc" as const, maxLevel: 10, perLevel: 20 },
+  { key: "bonusDmg" as const, icon: "bonusDmg" as const, labelKey: "upgrade.bonusDmg.label" as const, descKey: "upgrade.bonusDmg.desc" as const, maxLevel: 10, perLevel: 3 },
+  { key: "bonusTime" as const, icon: "bonusTime" as const, labelKey: "upgrade.bonusTime.label" as const, descKey: "upgrade.bonusTime.desc" as const, maxLevel: 5, perLevel: 1 },
+];
+
 const MainMenu = ({ progress, onStartBattle, onBuyUpgrade }: MainMenuProps) => {
+  const { t, lang, setLang } = useI18n();
+  const langs: Lang[] = ["ru", "en", "pt"];
+
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
+      {/* Language switcher */}
+      <div className="flex justify-end px-4 pt-3">
+        <div className="flex gap-1 bg-card border border-border rounded-md p-1">
+          {langs.map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-2 py-1 text-xs font-mono rounded transition-colors ${
+                lang === l
+                  ? "bg-muted text-player-energy"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {LANG_LABELS[l]}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="flex flex-col items-center pt-10 pb-4 gap-2">
+      <div className="flex flex-col items-center pt-4 pb-4 gap-2">
         <motion.h1
           className="font-display text-4xl sm:text-5xl font-bold text-creature-bone tracking-wide"
           initial={{ opacity: 0, y: -20 }}
@@ -27,7 +56,7 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade }: MainMenuProps) => {
           Mathematic Battles
         </motion.h1>
         <div className="flex items-center gap-4 text-sm font-mono">
-          <span className="text-accent">Ур. {progress.level}</span>
+          <span className="text-accent">{t("menu.level")} {progress.level}</span>
           <span className="text-muted-foreground">
             {progress.xp}/{progress.xpToNext} XP
           </span>
@@ -37,10 +66,10 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade }: MainMenuProps) => {
 
       {/* Upgrades */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 gap-4 min-h-0">
-        <h2 className="font-display text-2xl font-bold text-foreground">Улучшения</h2>
+        <h2 className="font-display text-2xl font-bold text-foreground">{t("menu.upgrades")}</h2>
         <div className="grid gap-3 w-full max-w-md">
-          {UPGRADE_DEFS.map((def) => {
-            const Icon = ICONS[def.key];
+          {UPGRADE_KEYS.map((def) => {
+            const Icon = ICONS[def.icon];
             const lvl = getUpgradeLevel(progress.upgrades, def.key);
             const cost = getUpgradeCost(progress.upgrades, def.key);
             const maxed = lvl >= def.maxLevel;
@@ -60,16 +89,16 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade }: MainMenuProps) => {
                 </div>
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-foreground">{def.label}</span>
+                    <span className="font-mono font-bold text-foreground">{t(def.labelKey)}</span>
                     <span className="text-xs font-mono text-muted-foreground">
                       {lvl}/{def.maxLevel}
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-muted-foreground">{def.desc}</span>
+                  <span className="text-xs font-mono text-muted-foreground">{t(def.descKey)}</span>
                 </div>
                 <div className="text-right">
                   {maxed ? (
-                    <span className="text-xs font-mono text-player-energy">МАКС</span>
+                    <span className="text-xs font-mono text-player-energy">{t("menu.maxed")}</span>
                   ) : (
                     <span className={`text-sm font-mono font-bold ${canAfford ? "text-accent" : "text-muted-foreground"}`}>
                       🪙 {cost}
@@ -84,7 +113,7 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade }: MainMenuProps) => {
         {/* Stats summary */}
         <div className="flex gap-6 text-xs font-mono text-muted-foreground mt-2">
           <span>❤️ {100 + progress.upgrades.maxHp} HP</span>
-          <span>⚔️ +{progress.upgrades.bonusDmg} урон</span>
+          <span>⚔️ +{progress.upgrades.bonusDmg} {t("menu.damage")}</span>
           <span>⏱ +{progress.upgrades.bonusTime}с</span>
         </div>
       </div>
@@ -98,7 +127,7 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade }: MainMenuProps) => {
           whileTap={{ scale: 0.95 }}
         >
           <Swords size={24} />
-          В бой!
+          {t("menu.fight")}
         </motion.button>
       </div>
     </div>
