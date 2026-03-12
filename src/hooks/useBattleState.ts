@@ -92,6 +92,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       feedback: null,
       round: 1,
       pendingReward: null,
+      mistakes: [],
     };
   }, [enemyConfig, playerMaxHp]);
 
