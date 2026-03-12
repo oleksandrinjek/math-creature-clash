@@ -127,7 +127,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         feedback: { correct, damage },
         gameOver,
         winner: gameOver ? "player" : null,
-        pendingReward: correct ? { xp: roundXp, coins: roundCoins } : null,
+        pendingReward: correct ? { xp: roundXp, coins: 0 } : null,
       };
     });
 
