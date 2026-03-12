@@ -99,9 +99,9 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
             <span className={`text-lg font-mono font-bold ${state.feedback.correct ? "text-player-energy text-glow-cyan" : "text-destructive"}`}>
               {state.feedback.correct ? `${t("battle.correct")} −${state.feedback.damage} HP` : t("battle.miss")}
             </span>
-            {state.pendingReward && (
+            {state.pendingReward && state.pendingReward.xp > 0 && (
               <span className="text-xs font-mono text-accent">
-                +{state.pendingReward.xp} XP · +{state.pendingReward.coins} 🪙
+                +{state.pendingReward.xp} XP
               </span>
             )}
           </motion.div>
@@ -123,12 +123,12 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
               {state.winner === "player" ? t("battle.victory") : t("battle.defeat")}
             </span>
             {state.winner === "player" && (
-              <span className="text-xs font-mono text-accent">{t("battle.victoryBonus")} +20 XP · +15 🪙</span>
+              <span className="text-xs font-mono text-accent">{t("battle.victoryBonus")} +20 XP · +{15 + (progress.level - 1) * 2} 🪙</span>
             )}
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  if (state.winner === "player") addRewards(20, 15);
+                  if (state.winner === "player") addRewards(20, 15 + (progress.level - 1) * 2);
                   onReturnToMenu();
                 }}
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
@@ -138,7 +138,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
               </button>
               <button
                 onClick={() => {
-                  if (state.winner === "player") addRewards(20, 15);
+                  if (state.winner === "player") addRewards(20, 15 + (progress.level - 1) * 2);
                   resetBattle();
                 }}
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"

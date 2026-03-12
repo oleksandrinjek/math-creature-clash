@@ -116,8 +116,6 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       const gameOver = newEnemyHealth <= 0;
 
       const roundXp = correct ? Math.max(5, Math.round(15 - (elapsed / 1000))) : 0;
-      const levelCoinBonus = (playerLevel - 1) * 2;
-      const roundCoins = correct ? Math.max(1, Math.round(10 - (elapsed / 1000)) + levelCoinBonus) : 0;
 
       return {
         ...prev,
@@ -129,7 +127,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         feedback: { correct, damage },
         gameOver,
         winner: gameOver ? "player" : null,
-        pendingReward: correct ? { xp: roundXp, coins: roundCoins } : null,
+        pendingReward: correct ? { xp: roundXp, coins: 0 } : null,
       };
     });
 
