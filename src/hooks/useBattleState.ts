@@ -126,6 +126,10 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
 
       const roundXp = correct ? Math.max(5, Math.round(15 - (elapsed / 1000))) : 0;
 
+      const newMistakes = !correct
+        ? [...prev.mistakes, { a: prev.currentProblem.a, b: prev.currentProblem.b, correctAnswer: prev.currentProblem.answer, playerAnswer }]
+        : prev.mistakes;
+
       return {
         ...prev,
         enemyCreature: { ...prev.enemyCreature, health: newEnemyHealth },
@@ -137,6 +141,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         gameOver,
         winner: gameOver ? "player" : null,
         pendingReward: correct ? { xp: roundXp, coins: 0 } : null,
+        mistakes: newMistakes,
       };
     });
 
