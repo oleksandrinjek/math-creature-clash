@@ -99,9 +99,9 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
             <span className={`text-lg font-mono font-bold ${state.feedback.correct ? "text-player-energy text-glow-cyan" : "text-destructive"}`}>
               {state.feedback.correct ? `${t("battle.correct")} −${state.feedback.damage} HP` : t("battle.miss")}
             </span>
-            {state.pendingReward && (
+            {state.pendingReward && state.pendingReward.xp > 0 && (
               <span className="text-xs font-mono text-accent">
-                +{state.pendingReward.xp} XP · +{state.pendingReward.coins} 🪙
+                +{state.pendingReward.xp} XP
               </span>
             )}
           </motion.div>
