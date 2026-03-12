@@ -32,6 +32,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const { state, setInput, submitAnswer, resetBattle } = useBattleState(enemyConfig, playerMaxHp, progress.level);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     if (state.pendingReward) {
