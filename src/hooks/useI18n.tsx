@@ -35,6 +35,7 @@ const translations = {
   "battle.in": { ru: "за", en: "in", pt: "em" },
   "battle.wrong": { ru: "Неправильно!", en: "Wrong!", pt: "Errado!" },
   "battle.skipTurn": { ru: "Пропуск хода.", en: "Turn skipped.", pt: "Turno perdido." },
+  "battle.reviewMistakes": { ru: "Работа над ошибками", en: "Review mistakes", pt: "Revisão de erros" },
 
   // Enemies
   "enemy.shadow": { ru: "Теневик", en: "Shadowling", pt: "Sombrio" },
