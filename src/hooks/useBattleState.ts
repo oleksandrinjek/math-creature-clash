@@ -63,7 +63,7 @@ interface EnemyConfig {
   enemyName: string;
 }
 
-export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100) => {
+export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1) => {
   const timerRef = useRef<number | null>(null);
   const usedProblems = useRef<Set<string>>(new Set());
 
