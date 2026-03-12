@@ -39,6 +39,7 @@ export interface BattleState {
   feedback: { correct: boolean; damage: number } | null;
   round: number;
   pendingReward: RoundReward | null;
+  mistakes: Mistake[];
 }
 
 const generateProblem = (used: Set<string>): MathProblem => {
