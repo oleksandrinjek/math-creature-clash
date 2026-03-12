@@ -128,7 +128,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  if (state.winner === "player") addRewards(20, 15);
+                  if (state.winner === "player") addRewards(20, 15 + (progress.level - 1) * 2);
                   onReturnToMenu();
                 }}
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
