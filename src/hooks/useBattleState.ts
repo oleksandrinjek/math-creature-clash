@@ -13,6 +13,13 @@ export interface MathProblem {
   answer: number;
 }
 
+export interface Mistake {
+  a: number;
+  b: number;
+  correctAnswer: number;
+  playerAnswer: number;
+}
+
 export interface RoundReward {
   xp: number;
   coins: number;
