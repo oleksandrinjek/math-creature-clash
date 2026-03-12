@@ -65,9 +65,11 @@ interface EnemyConfig {
 
 export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100) => {
   const timerRef = useRef<number | null>(null);
+  const usedProblems = useRef<Set<string>>(new Set());
 
   const createInitialState = useCallback((): BattleState => {
-    const problem = generateProblem(1);
+    usedProblems.current.clear();
+    const problem = generateProblem(usedProblems.current);
     return {
       playerCreature: { id: "player", name: "Умножитель", health: playerMaxHp, maxHealth: playerMaxHp },
       enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
