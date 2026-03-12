@@ -32,6 +32,13 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const { state, setInput, submitAnswer, resetBattle } = useBattleState(enemyConfig, playerMaxHp, progress.level);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   useEffect(() => {
     if (state.pendingReward) {
@@ -70,6 +77,29 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
       <PlayerHUD progress={progress} levelUp={levelUp} />
+
+      <AnimatePresence>
+        {countdown > 0 && (
+          <motion.div
+            key="countdown-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+          >
+            <motion.span
+              key={countdown}
+              initial={{ scale: 2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="text-8xl font-display font-bold text-player-energy text-glow-cyan"
+            >
+              {countdown}
+            </motion.span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex-1 flex items-center justify-center relative min-h-0">
         <CreatureCard
