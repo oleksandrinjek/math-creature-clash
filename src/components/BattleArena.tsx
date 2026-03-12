@@ -123,7 +123,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
               {state.winner === "player" ? t("battle.victory") : t("battle.defeat")}
             </span>
             {state.winner === "player" && (
-              <span className="text-xs font-mono text-accent">{t("battle.victoryBonus")} +20 XP · +15 🪙</span>
+              <span className="text-xs font-mono text-accent">{t("battle.victoryBonus")} +20 XP · +{15 + (progress.level - 1) * 2} 🪙</span>
             )}
             <div className="flex gap-2">
               <button
