@@ -13,6 +13,13 @@ export interface MathProblem {
   answer: number;
 }
 
+export interface Mistake {
+  a: number;
+  b: number;
+  correctAnswer: number;
+  playerAnswer: number;
+}
+
 export interface RoundReward {
   xp: number;
   coins: number;
@@ -32,6 +39,7 @@ export interface BattleState {
   feedback: { correct: boolean; damage: number } | null;
   round: number;
   pendingReward: RoundReward | null;
+  mistakes: Mistake[];
 }
 
 const generateProblem = (used: Set<string>): MathProblem => {
@@ -84,6 +92,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       feedback: null,
       round: 1,
       pendingReward: null,
+      mistakes: [],
     };
   }, [enemyConfig, playerMaxHp]);
 
@@ -117,6 +126,10 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
 
       const roundXp = correct ? Math.max(5, Math.round(15 - (elapsed / 1000))) : 0;
 
+      const newMistakes = !correct
+        ? [...prev.mistakes, { a: prev.currentProblem.a, b: prev.currentProblem.b, correctAnswer: prev.currentProblem.answer, playerAnswer }]
+        : prev.mistakes;
+
       return {
         ...prev,
         enemyCreature: { ...prev.enemyCreature, health: newEnemyHealth },
@@ -128,6 +141,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         gameOver,
         winner: gameOver ? "player" : null,
         pendingReward: correct ? { xp: roundXp, coins: 0 } : null,
+        mistakes: newMistakes,
       };
     });
 
