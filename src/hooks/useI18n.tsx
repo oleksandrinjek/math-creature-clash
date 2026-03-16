@@ -6,6 +6,8 @@ const translations = {
   // Main Menu
   "menu.level": { ru: "Ур.", en: "Lv.", pt: "Nv." },
   "menu.upgrades": { ru: "Улучшения", en: "Upgrades", pt: "Melhorias" },
+  "menu.shop": { ru: "Магазин", en: "Shop", pt: "Loja" },
+  "menu.skins": { ru: "Скины", en: "Skins", pt: "Skins" },
   "menu.fight": { ru: "В бой!", en: "Fight!", pt: "Lutar!" },
   "menu.maxed": { ru: "МАКС", en: "MAX", pt: "MÁX" },
   "menu.damage": { ru: "урон", en: "damage", pt: "dano" },
@@ -17,6 +19,27 @@ const translations = {
   "upgrade.bonusDmg.desc": { ru: "+3 к урону", en: "+3 damage", pt: "+3 dano" },
   "upgrade.bonusTime.label": { ru: "Доп. время", en: "Extra Time", pt: "Tempo Extra" },
   "upgrade.bonusTime.desc": { ru: "+1с до снижения урона", en: "+1s before damage decay", pt: "+1s antes da redução" },
+
+  // Shop items
+  "shop.healPotion.label": { ru: "Зелье лечения", en: "Heal Potion", pt: "Poção de Cura" },
+  "shop.healPotion.desc": { ru: "Восстановить 30 HP в бою", en: "Restore 30 HP in battle", pt: "Restaurar 30 HP na batalha" },
+  "shop.shield.label": { ru: "Щит", en: "Shield", pt: "Escudo" },
+  "shop.shield.desc": { ru: "Блокировать следующую атаку", en: "Block next enemy attack", pt: "Bloquear próximo ataque" },
+  "shop.doubleDmg.label": { ru: "Двойной урон", en: "Double Damage", pt: "Dano Duplo" },
+  "shop.doubleDmg.desc": { ru: "×2 урон на 1 ход", en: "×2 damage for 1 turn", pt: "×2 dano por 1 turno" },
+  "shop.xpBoost.label": { ru: "Бустер XP", en: "XP Boost", pt: "Boost de XP" },
+  "shop.xpBoost.desc": { ru: "+50% XP за бой", en: "+50% XP per battle", pt: "+50% XP por batalha" },
+  "shop.coinBoost.label": { ru: "Бустер монет", en: "Coin Boost", pt: "Boost de Moedas" },
+  "shop.coinBoost.desc": { ru: "+50% монет за бой", en: "+50% coins per battle", pt: "+50% moedas por batalha" },
+
+  // Skins
+  "skin.default": { ru: "Стандартный", en: "Default", pt: "Padrão" },
+  "skin.fire": { ru: "Огненный", en: "Fire", pt: "Fogo" },
+  "skin.ice": { ru: "Ледяной", en: "Ice", pt: "Gelo" },
+  "skin.shadow": { ru: "Теневой", en: "Shadow", pt: "Sombra" },
+  "skin.golden": { ru: "Золотой", en: "Golden", pt: "Dourado" },
+  "skin.equipped": { ru: "Надето", en: "Equipped", pt: "Equipado" },
+  "skin.equip": { ru: "Надеть", en: "Equip", pt: "Equipar" },
 
   // Battle
   "battle.start": { ru: "Бой начинается! Решай примеры быстрее!", en: "Battle begins! Solve problems fast!", pt: "A batalha começa! Resolva rápido!" },

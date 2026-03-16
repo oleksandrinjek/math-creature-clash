@@ -7,6 +7,16 @@ export interface Upgrades {
   bonusTime: number;
 }
 
+export interface Inventory {
+  healPotion: number;
+  shield: number;
+  doubleDmg: number;
+  xpBoost: number;
+  coinBoost: number;
+}
+
+export type SkinId = "default" | "fire" | "ice" | "shadow" | "golden";
+
 export interface PlayerProgress {
   level: number;
   xp: number;
@@ -14,6 +24,9 @@ export interface PlayerProgress {
   coins: number;
   totalCoins: number;
   upgrades: Upgrades;
+  inventory: Inventory;
+  ownedSkins: SkinId[];
+  activeSkin: SkinId;
 }
 
 const calcXpToNext = (level: number) => 50 + level * 30;
@@ -25,6 +38,9 @@ const initialProgress = (): PlayerProgress => ({
   coins: 0,
   totalCoins: 0,
   upgrades: { maxHp: 0, bonusDmg: 0, bonusTime: 0 },
+  inventory: { healPotion: 0, shield: 0, doubleDmg: 0, xpBoost: 0, coinBoost: 0 },
+  ownedSkins: ["default"],
+  activeSkin: "default",
 });
 
 export const UPGRADE_DEFS = [
@@ -32,6 +48,33 @@ export const UPGRADE_DEFS = [
   { key: "bonusDmg" as const, baseCost: 20, costScale: 12, perLevel: 3, maxLevel: 10 },
   { key: "bonusTime" as const, baseCost: 25, costScale: 15, perLevel: 1, maxLevel: 5 },
 ] as const;
+
+export interface ShopItemDef {
+  key: keyof Inventory;
+  cost: number;
+}
+
+export const SHOP_ITEMS: ShopItemDef[] = [
+  { key: "healPotion", cost: 10 },
+  { key: "shield", cost: 15 },
+  { key: "doubleDmg", cost: 20 },
+  { key: "xpBoost", cost: 12 },
+  { key: "coinBoost", cost: 12 },
+];
+
+export interface SkinDef {
+  id: SkinId;
+  cost: number;
+  hue: string; // CSS filter hue-rotate value
+}
+
+export const SKIN_DEFS: SkinDef[] = [
+  { id: "default", cost: 0, hue: "0deg" },
+  { id: "fire", cost: 30, hue: "330deg" },
+  { id: "ice", cost: 30, hue: "180deg" },
+  { id: "shadow", cost: 50, hue: "260deg" },
+  { id: "golden", cost: 80, hue: "40deg" },
+];
 
 export const getUpgradeLevel = (upgrades: Upgrades, key: keyof Upgrades): number => {
   const def = UPGRADE_DEFS.find((d) => d.key === key)!;
@@ -88,6 +131,38 @@ export const usePlayerProgress = () => {
     });
   }, []);
 
+  const buyShopItem = useCallback((key: keyof Inventory) => {
+    setProgress((prev) => {
+      const def = SHOP_ITEMS.find((d) => d.key === key)!;
+      if (prev.coins < def.cost) return prev;
+      return {
+        ...prev,
+        coins: prev.coins - def.cost,
+        inventory: { ...prev.inventory, [key]: prev.inventory[key] + 1 },
+      };
+    });
+  }, []);
+
+  const buySkin = useCallback((id: SkinId) => {
+    setProgress((prev) => {
+      if (prev.ownedSkins.includes(id)) return prev;
+      const def = SKIN_DEFS.find((d) => d.id === id)!;
+      if (prev.coins < def.cost) return prev;
+      return {
+        ...prev,
+        coins: prev.coins - def.cost,
+        ownedSkins: [...prev.ownedSkins, id],
+      };
+    });
+  }, []);
+
+  const equipSkin = useCallback((id: SkinId) => {
+    setProgress((prev) => {
+      if (!prev.ownedSkins.includes(id)) return prev;
+      return { ...prev, activeSkin: id };
+    });
+  }, []);
+
   const getEnemyScale = useCallback((level: number) => {
     const nameKey = level < 3 ? "enemy.shadow" : level < 6 ? "enemy.gloom" : level < 10 ? "enemy.void" : "enemy.absolute";
     return {
@@ -98,5 +173,5 @@ export const usePlayerProgress = () => {
     };
   }, [t]);
 
-  return { progress, levelUp, addRewards, buyUpgrade, getEnemyScale };
+  return { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, getEnemyScale };
 };
