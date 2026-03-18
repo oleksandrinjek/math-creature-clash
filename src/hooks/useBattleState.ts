@@ -189,5 +189,9 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
     setState(createInitialState());
   }, [createInitialState]);
 
-  return { state, setInput, submitAnswer, resetBattle };
+  const resetTimer = useCallback(() => {
+    setState((prev) => ({ ...prev, problemStartTime: Date.now() }));
+  }, []);
+
+  return { state, setInput, submitAnswer, resetBattle, resetTimer };
 };
