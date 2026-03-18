@@ -166,9 +166,9 @@ export const usePlayerProgress = () => {
   const getEnemyScale = useCallback((level: number) => {
     const nameKey = level < 3 ? "enemy.shadow" : level < 6 ? "enemy.gloom" : level < 10 ? "enemy.void" : "enemy.absolute";
     return {
-      enemyHp: 80 + level * 20,
-      enemyMinDmg: 5 + Math.floor(level / 2),
-      enemyMaxDmg: 12 + level * 2,
+      enemyHp: 60 + level * 15,
+      enemyMinDmg: 4 + Math.floor(level / 3),
+      enemyMaxDmg: 9 + level * 1.5,
       enemyName: t(nameKey as any),
     };
   }, [t]);
