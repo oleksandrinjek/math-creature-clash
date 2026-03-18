@@ -64,9 +64,9 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   useEffect(() => {
     if (!state.isPlayerTurn || state.gameOver || !state.problemStartTime) return;
     if (countdown > 0) { setElapsed(0); return; }
-    const startTime = countdownDoneTime.current || state.problemStartTime;
+    const startTime = state.problemStartTime;
     const interval = setInterval(() => {
-      setElapsed(Math.max(0, (Date.now() - startTime!) / 1000));
+      setElapsed(Math.max(0, (Date.now() - startTime) / 1000));
     }, 100);
     return () => clearInterval(interval);
   }, [state.isPlayerTurn, state.gameOver, state.problemStartTime, countdown]);
