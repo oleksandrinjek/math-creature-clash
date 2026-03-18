@@ -34,17 +34,15 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const [elapsed, setElapsed] = useState(0);
   const [countdown, setCountdown] = useState(3);
 
+  const countdownDoneTime = useRef<number | null>(null);
+
   useEffect(() => {
-    if (countdown <= 0) return;
-    const timer = setTimeout(() => {
-      setCountdown((c) => {
-        if (c === 1) {
-          // Reset problemStartTime when countdown finishes
-          setState((prev) => ({ ...prev, problemStartTime: Date.now() }));
-        }
-        return c - 1;
-      });
-    }, 1000);
+    if (countdown <= 0) {
+      if (!countdownDoneTime.current) countdownDoneTime.current = Date.now();
+      return;
+    }
+    countdownDoneTime.current = null;
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
 
