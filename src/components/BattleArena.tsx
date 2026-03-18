@@ -38,13 +38,16 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
 
   useEffect(() => {
     if (countdown <= 0) {
-      if (!countdownDoneTime.current) countdownDoneTime.current = Date.now();
+      if (!countdownDoneTime.current) {
+        countdownDoneTime.current = Date.now();
+        resetTimer();
+      }
       return;
     }
     countdownDoneTime.current = null;
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [countdown, resetTimer]);
 
   useEffect(() => {
     if (state.pendingReward) {
