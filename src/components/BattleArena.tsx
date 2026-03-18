@@ -29,16 +29,25 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const bonusDmg = progress.upgrades.bonusDmg;
   const bonusTime = progress.upgrades.bonusTime;
 
-  const { state, setInput, submitAnswer, resetBattle } = useBattleState(enemyConfig, playerMaxHp, progress.level);
+  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
   const [countdown, setCountdown] = useState(3);
 
+  const countdownDoneTime = useRef<number | null>(null);
+
   useEffect(() => {
-    if (countdown <= 0) return;
+    if (countdown <= 0) {
+      if (!countdownDoneTime.current) {
+        countdownDoneTime.current = Date.now();
+        resetTimer();
+      }
+      return;
+    }
+    countdownDoneTime.current = null;
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [countdown, resetTimer]);
 
   useEffect(() => {
     if (state.pendingReward) {
@@ -54,11 +63,13 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
 
   useEffect(() => {
     if (!state.isPlayerTurn || state.gameOver || !state.problemStartTime) return;
+    if (countdown > 0) { setElapsed(0); return; }
+    const startTime = countdownDoneTime.current || state.problemStartTime;
     const interval = setInterval(() => {
-      setElapsed(Math.max(0, (Date.now() - state.problemStartTime!) / 1000));
+      setElapsed(Math.max(0, (Date.now() - startTime!) / 1000));
     }, 100);
     return () => clearInterval(interval);
-  }, [state.isPlayerTurn, state.gameOver, state.problemStartTime]);
+  }, [state.isPlayerTurn, state.gameOver, state.problemStartTime, countdown]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && state.playerInput) {
