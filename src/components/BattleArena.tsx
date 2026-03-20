@@ -216,6 +216,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
           side="player"
           isActive={state.isPlayerTurn && !state.gameOver}
           operation="Умножение"
+          skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
         />
       </div>
 
