@@ -10,10 +10,12 @@ interface CreatureCardProps {
   side: "player" | "enemy";
   isActive: boolean;
   operation: string;
+  skinHue?: string;
 }
 
-const CreatureCard = ({ name, health, maxHealth, side, isActive, operation }: CreatureCardProps) => {
+const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skinHue }: CreatureCardProps) => {
   const img = side === "player" ? playerImg : enemyImg;
+  const hueFilter = side === "player" && skinHue && skinHue !== "0deg" ? `hue-rotate(${skinHue})` : undefined;
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -30,6 +32,7 @@ const CreatureCard = ({ name, health, maxHealth, side, isActive, operation }: Cr
           src={img}
           alt={name}
           className="w-full h-full object-contain drop-shadow-lg"
+          style={hueFilter ? { filter: hueFilter } : undefined}
         />
       </motion.div>
       <div className="w-36 sm:w-44">
