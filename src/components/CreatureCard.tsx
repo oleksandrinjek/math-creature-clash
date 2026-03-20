@@ -10,6 +10,7 @@ interface CreatureCardProps {
   side: "player" | "enemy";
   isActive: boolean;
   operation: string;
+  skinHue?: string;
 }
 
 const CreatureCard = ({ name, health, maxHealth, side, isActive, operation }: CreatureCardProps) => {
