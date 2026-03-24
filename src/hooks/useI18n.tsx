@@ -71,6 +71,18 @@ const translations = {
 
   // HUD
   "hud.level": { ru: "Уровень", en: "Level", pt: "Nível" },
+
+  // Battle log templates
+  "battle.logCorrect": { ru: "✓ {a} × {b} = {ans} за {t}с → {dmg} урона!", en: "✓ {a} × {b} = {ans} in {t}s → {dmg} damage!", pt: "✓ {a} × {b} = {ans} em {t}s → {dmg} dano!" },
+  "battle.logWrong": { ru: "✗ Неправильно! {a} × {b} = {ans}. Пропуск хода.", en: "✗ Wrong! {a} × {b} = {ans}. Turn skipped.", pt: "✗ Errado! {a} × {b} = {ans}. Turno perdido." },
+  "battle.logEnemyAttack": { ru: "{name} атакует → {dmg} урона!", en: "{name} attacks → {dmg} damage!", pt: "{name} ataca → {dmg} dano!" },
+
+  // Creature operations
+  "creature.shadow": { ru: "Тень", en: "Shadow", pt: "Sombra" },
+  "creature.multiplication": { ru: "Умножение", en: "Multiplication", pt: "Multiplicação" },
+
+  // Time suffix
+  "battle.timeSuffix": { ru: "с", en: "s", pt: "s" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
