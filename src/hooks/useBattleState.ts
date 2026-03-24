@@ -120,8 +120,8 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       const seconds = (elapsed / 1000).toFixed(1);
 
       const log = correct
-        ? `✓ ${prev.currentProblem.a} × ${prev.currentProblem.b} = ${prev.currentProblem.answer} за ${seconds}с → ${damage} урона!`
-        : `✗ Неправильно! ${prev.currentProblem.a} × ${prev.currentProblem.b} = ${prev.currentProblem.answer}. Пропуск хода.`;
+        ? t("battle.logCorrect", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer, t: seconds, dmg: damage })
+        : t("battle.logWrong", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer });
 
       const gameOver = newEnemyHealth <= 0;
 
