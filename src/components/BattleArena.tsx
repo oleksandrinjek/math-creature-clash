@@ -176,7 +176,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
                 <div className="space-y-0.5">
                   {state.mistakes.map((m, i) => (
                     <p key={i} className="text-xs font-mono">
-                      <span className="text-destructive line-through">{m.a} × {m.b} = {m.playerAnswer}</span>
+                      <span className="text-destructive line-through">{m.a} {OP_SYMBOLS[operation]} {m.b} = {m.playerAnswer}</span>
                       <span className="text-player-energy ml-2">→ {m.correctAnswer}</span>
                     </p>
                   ))}
