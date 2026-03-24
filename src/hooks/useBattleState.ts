@@ -8,10 +8,13 @@ export interface Creature {
   maxHealth: number;
 }
 
+export type MathOperation = "multiply" | "add" | "subtract";
+
 export interface MathProblem {
   a: number;
   b: number;
   answer: number;
+  op: MathOperation;
 }
 
 export interface Mistake {

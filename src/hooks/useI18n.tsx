@@ -80,6 +80,14 @@ const translations = {
   // Creature operations
   "creature.shadow": { ru: "Тень", en: "Shadow", pt: "Sombra" },
   "creature.multiplication": { ru: "Умножение", en: "Multiplication", pt: "Multiplicação" },
+  "creature.addition": { ru: "Сложение", en: "Addition", pt: "Adição" },
+  "creature.subtraction": { ru: "Вычитание", en: "Subtraction", pt: "Subtração" },
+
+  // Operation selector
+  "op.multiply": { ru: "Умножение", en: "Multiply", pt: "Multiplicação" },
+  "op.add": { ru: "Сложение", en: "Addition", pt: "Adição" },
+  "op.subtract": { ru: "Вычитание", en: "Subtraction", pt: "Subtração" },
+  "op.unlockAt3": { ru: "Разблокируется на ур. 3", en: "Unlocks at level 3", pt: "Desbloqueado no nv. 3" },
 
   // Time suffix
   "battle.timeSuffix": { ru: "с", en: "s", pt: "s" },
