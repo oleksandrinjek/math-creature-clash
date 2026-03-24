@@ -137,7 +137,7 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
             <div className="flex gap-6 text-xs font-mono text-muted-foreground mt-3 justify-center">
               <span>❤️ {100 + progress.upgrades.maxHp} HP</span>
               <span>⚔️ +{progress.upgrades.bonusDmg} {t("menu.damage")}</span>
-              <span>⏱ +{progress.upgrades.bonusTime}с</span>
+              <span>⏱ +{progress.upgrades.bonusTime}{t("battle.timeSuffix")}</span>
             </div>
           </TabsContent>
 
