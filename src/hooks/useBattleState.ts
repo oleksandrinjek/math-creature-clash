@@ -75,6 +75,7 @@ const generateProblem = (used: Set<string>, op: MathOperation): MathProblem => {
   const a = b + answer;
   return { a, b, answer, op };
 };
+const OP_SYMBOLS: Record<MathOperation, string> = { multiply: "×", add: "+", subtract: "−" };
 
 const calcDamage = (elapsedMs: number, correct: boolean, bonusDmg: number, bonusTime: number): number => {
   if (!correct) return 0;
