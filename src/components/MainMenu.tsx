@@ -235,8 +235,29 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
         </Tabs>
       </div>
 
-      {/* Battle button */}
-      <div className="flex justify-center py-6">
+      {/* Operation selector + Battle button */}
+      <div className="flex flex-col items-center gap-3 py-6">
+        {unlocked && (
+          <div className="flex gap-1 bg-card border border-border rounded-md p-1">
+            {OP_OPTIONS.map((op) => (
+              <button
+                key={op.key}
+                onClick={() => onSetOperation(op.key)}
+                className={`px-3 py-1.5 text-xs font-mono rounded transition-colors flex items-center gap-1.5 ${
+                  operation === op.key
+                    ? "bg-muted text-player-energy"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="text-sm">{op.symbol}</span>
+                {t(op.labelKey)}
+              </button>
+            ))}
+          </div>
+        )}
+        {!unlocked && (
+          <span className="text-xs font-mono text-muted-foreground">{t("op.unlockAt3")}</span>
+        )}
         <motion.button
           onClick={onStartBattle}
           className="flex items-center gap-3 px-8 py-4 rounded-lg bg-muted border-2 border-player-energy text-player-energy font-mono font-bold text-lg transition-colors hover:bg-card"
