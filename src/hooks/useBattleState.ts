@@ -89,13 +89,13 @@ interface EnemyConfig {
   enemyName: string;
 }
 
-export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1, t: Translator) => {
+export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1, t: Translator, operation: MathOperation = "multiply") => {
   const timerRef = useRef<number | null>(null);
   const usedProblems = useRef<Set<string>>(new Set());
 
   const createInitialState = useCallback((): BattleState => {
     usedProblems.current.clear();
-    const problem = generateProblem(usedProblems.current);
+    const problem = generateProblem(usedProblems.current, operation);
     return {
       playerCreature: { id: "player", name: t("player.name"), health: playerMaxHp, maxHealth: playerMaxHp },
       enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
