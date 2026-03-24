@@ -137,9 +137,10 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       const newEnemyHealth = correct ? Math.max(0, prev.enemyCreature.health - damage) : prev.enemyCreature.health;
       const seconds = (elapsed / 1000).toFixed(1);
 
+      const opSym = OP_SYMBOLS[prev.currentProblem.op];
       const log = correct
-        ? t("battle.logCorrect", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer, t: seconds, dmg: damage })
-        : t("battle.logWrong", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer });
+        ? t("battle.logCorrect", { a: prev.currentProblem.a, op: opSym, b: prev.currentProblem.b, ans: prev.currentProblem.answer, t: seconds, dmg: damage })
+        : t("battle.logWrong", { a: prev.currentProblem.a, op: opSym, b: prev.currentProblem.b, ans: prev.currentProblem.answer });
 
       const gameOver = newEnemyHealth <= 0;
 
