@@ -155,7 +155,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         const { enemyMinDmg, enemyMaxDmg } = enemyConfig;
         const enemyDamage = Math.floor(Math.random() * (enemyMaxDmg - enemyMinDmg + 1)) + enemyMinDmg;
         const newPlayerHealth = Math.max(0, prev.playerCreature.health - enemyDamage);
-        const log = `${prev.enemyCreature.name} атакует → ${enemyDamage} урона!`;
+        const log = t("battle.logEnemyAttack", { name: prev.enemyCreature.name, dmg: enemyDamage });
         const gameOver = newPlayerHealth <= 0;
         const nextRound = prev.round + 1;
         const nextProblem = generateProblem(usedProblems.current);
