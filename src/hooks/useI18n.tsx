@@ -67,7 +67,7 @@ const translations = {
   "enemy.absolute": { ru: "Абсолют", en: "Absolute", pt: "Absoluto" },
 
   // Player
-  "player.name": { ru: "Умножитель", en: "Multiplier", pt: "Multiplicador" },
+  "player.name": { ru: "Костевой", en: "Boneclaw", pt: "Ossário" },
 
   // HUD
   "hud.level": { ru: "Уровень", en: "Level", pt: "Nível" },
