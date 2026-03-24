@@ -3,6 +3,7 @@ import { Swords, Shield, Zap, Clock, ShoppingBag, Palette } from "lucide-react";
 import { PlayerProgress, Upgrades, Inventory, SkinId, getUpgradeLevel, getUpgradeCost, SHOP_ITEMS, SKIN_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n, LANG_LABELS, Lang } from "@/hooks/useI18n";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { MathOperation } from "@/hooks/useBattleState";
 
 interface MainMenuProps {
   progress: PlayerProgress;
@@ -11,7 +12,15 @@ interface MainMenuProps {
   onBuyShopItem: (key: keyof Inventory) => void;
   onBuySkin: (id: SkinId) => void;
   onEquipSkin: (id: SkinId) => void;
+  operation: MathOperation;
+  onSetOperation: (op: MathOperation) => void;
 }
+
+const OP_OPTIONS: { key: MathOperation; symbol: string; labelKey: "op.multiply" | "op.add" | "op.subtract" }[] = [
+  { key: "multiply", symbol: "×", labelKey: "op.multiply" },
+  { key: "add", symbol: "+", labelKey: "op.add" },
+  { key: "subtract", symbol: "−", labelKey: "op.subtract" },
+];
 
 const UPGRADE_ICONS = { maxHp: Shield, bonusDmg: Zap, bonusTime: Clock };
 
