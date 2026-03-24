@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
+type Translator = (key: string, params?: Record<string, string | number>) => string;
 export interface Creature {
   id: string;
   name: string;
