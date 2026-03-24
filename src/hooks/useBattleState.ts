@@ -112,7 +112,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       pendingReward: null,
       mistakes: [],
     };
-  }, [enemyConfig, playerMaxHp, t]);
+  }, [enemyConfig, playerMaxHp, t, operation]);
 
   const [state, setState] = useState<BattleState>(createInitialState);
 
