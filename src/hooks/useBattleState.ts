@@ -46,20 +46,34 @@ export interface BattleState {
   mistakes: Mistake[];
 }
 
-const generateProblem = (used: Set<string>): MathProblem => {
-  const all: [number, number][] = [];
-  for (let a = 1; a <= 10; a++) {
-    for (let b = a; b <= 10; b++) {
-      const key = `${a}x${b}`;
-      if (!used.has(key)) all.push([a, b]);
+const generateProblem = (used: Set<string>, op: MathOperation): MathProblem => {
+  if (op === "multiply") {
+    const all: [number, number][] = [];
+    for (let a = 1; a <= 10; a++) {
+      for (let b = a; b <= 10; b++) {
+        const key = `${a}x${b}`;
+        if (!used.has(key)) all.push([a, b]);
+      }
     }
+    if (all.length === 0) used.clear();
+    const pool = all.length > 0 ? all : [[1, 1] as [number, number]];
+    const [x, y] = pool[Math.floor(Math.random() * pool.length)];
+    const [a, b] = Math.random() < 0.5 ? [x, y] : [y, x];
+    used.add(`${Math.min(a, b)}x${Math.max(a, b)}`);
+    return { a, b, answer: a * b, op };
   }
-  if (all.length === 0) used.clear();
-  const pool = all.length > 0 ? all : [[1, 1] as [number, number]];
-  const [x, y] = pool[Math.floor(Math.random() * pool.length)];
-  const [a, b] = Math.random() < 0.5 ? [x, y] : [y, x];
-  used.add(`${Math.min(a, b)}x${Math.max(a, b)}`);
-  return { a, b, answer: a * b };
+
+  if (op === "add") {
+    const a = Math.floor(Math.random() * 90) + 10;
+    const b = Math.floor(Math.random() * 90) + 10;
+    return { a, b, answer: a + b, op };
+  }
+
+  // subtract — ensure positive result
+  const b = Math.floor(Math.random() * 50) + 10;
+  const answer = Math.floor(Math.random() * 50) + 1;
+  const a = b + answer;
+  return { a, b, answer, op };
 };
 
 const calcDamage = (elapsedMs: number, correct: boolean, bonusDmg: number, bonusTime: number): number => {
