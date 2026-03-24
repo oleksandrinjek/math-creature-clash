@@ -3,6 +3,7 @@ import { Swords, Shield, Zap, Clock, ShoppingBag, Palette } from "lucide-react";
 import { PlayerProgress, Upgrades, Inventory, SkinId, getUpgradeLevel, getUpgradeCost, SHOP_ITEMS, SKIN_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n, LANG_LABELS, Lang } from "@/hooks/useI18n";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { MathOperation } from "@/hooks/useBattleState";
 
 interface MainMenuProps {
   progress: PlayerProgress;
@@ -11,7 +12,15 @@ interface MainMenuProps {
   onBuyShopItem: (key: keyof Inventory) => void;
   onBuySkin: (id: SkinId) => void;
   onEquipSkin: (id: SkinId) => void;
+  operation: MathOperation;
+  onSetOperation: (op: MathOperation) => void;
 }
+
+const OP_OPTIONS: { key: MathOperation; symbol: string; labelKey: "op.multiply" | "op.add" | "op.subtract" }[] = [
+  { key: "multiply", symbol: "×", labelKey: "op.multiply" },
+  { key: "add", symbol: "+", labelKey: "op.add" },
+  { key: "subtract", symbol: "−", labelKey: "op.subtract" },
+];
 
 const UPGRADE_ICONS = { maxHp: Shield, bonusDmg: Zap, bonusTime: Clock };
 
@@ -37,9 +46,10 @@ const SKIN_COLORS: Record<SkinId, string> = {
   golden: "bg-accent/20 border-accent",
 };
 
-const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuySkin, onEquipSkin }: MainMenuProps) => {
+const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuySkin, onEquipSkin, operation, onSetOperation }: MainMenuProps) => {
   const { t, lang, setLang } = useI18n();
   const langs: Lang[] = ["ru", "en", "pt"];
+  const unlocked = progress.level >= 3;
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
@@ -225,8 +235,29 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
         </Tabs>
       </div>
 
-      {/* Battle button */}
-      <div className="flex justify-center py-6">
+      {/* Operation selector + Battle button */}
+      <div className="flex flex-col items-center gap-3 py-6">
+        {unlocked && (
+          <div className="flex gap-1 bg-card border border-border rounded-md p-1">
+            {OP_OPTIONS.map((op) => (
+              <button
+                key={op.key}
+                onClick={() => onSetOperation(op.key)}
+                className={`px-3 py-1.5 text-xs font-mono rounded transition-colors flex items-center gap-1.5 ${
+                  operation === op.key
+                    ? "bg-muted text-player-energy"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="text-sm">{op.symbol}</span>
+                {t(op.labelKey)}
+              </button>
+            ))}
+          </div>
+        )}
+        {!unlocked && (
+          <span className="text-xs font-mono text-muted-foreground">{t("op.unlockAt3")}</span>
+        )}
         <motion.button
           onClick={onStartBattle}
           className="flex items-center gap-3 px-8 py-4 rounded-lg bg-muted border-2 border-player-energy text-player-energy font-mono font-bold text-lg transition-colors hover:bg-card"

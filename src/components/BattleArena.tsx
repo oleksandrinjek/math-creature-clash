@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useBattleState } from "@/hooks/useBattleState";
+import { useBattleState, MathOperation } from "@/hooks/useBattleState";
 import { PlayerProgress, SKIN_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n } from "@/hooks/useI18n";
 import CreatureCard from "./CreatureCard";
@@ -21,15 +21,18 @@ interface BattleArenaProps {
   addRewards: (xp: number, coins: number) => void;
   enemyConfig: EnemyConfig;
   onReturnToMenu: () => void;
+  operation: MathOperation;
 }
 
-const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMenu }: BattleArenaProps) => {
+const OP_SYMBOLS: Record<MathOperation, string> = { multiply: "×", add: "+", subtract: "−" };
+
+const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMenu, operation }: BattleArenaProps) => {
   const { t } = useI18n();
   const playerMaxHp = 100 + progress.upgrades.maxHp;
   const bonusDmg = progress.upgrades.bonusDmg;
   const bonusTime = progress.upgrades.bonusTime;
 
-  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level, t);
+  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level, t, operation);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
   const [countdown, setCountdown] = useState(3);
@@ -173,7 +176,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
                 <div className="space-y-0.5">
                   {state.mistakes.map((m, i) => (
                     <p key={i} className="text-xs font-mono">
-                      <span className="text-destructive line-through">{m.a} × {m.b} = {m.playerAnswer}</span>
+                      <span className="text-destructive line-through">{m.a} {OP_SYMBOLS[operation]} {m.b} = {m.playerAnswer}</span>
                       <span className="text-player-energy ml-2">→ {m.correctAnswer}</span>
                     </p>
                   ))}
@@ -215,7 +218,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
           maxHealth={state.playerCreature.maxHealth}
           side="player"
           isActive={state.isPlayerTurn && !state.gameOver}
-          operation={t("creature.multiplication")}
+          operation={t(operation === "add" ? "creature.addition" : operation === "subtract" ? "creature.subtraction" : "creature.multiplication")}
           skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
         />
       </div>
@@ -236,7 +239,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
               <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.a}
               </span>
-              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">×</span>
+              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">{state.currentProblem ? OP_SYMBOLS[state.currentProblem.op] : "×"}</span>
               <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.b}
               </span>

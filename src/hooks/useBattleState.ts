@@ -8,10 +8,13 @@ export interface Creature {
   maxHealth: number;
 }
 
+export type MathOperation = "multiply" | "add" | "subtract";
+
 export interface MathProblem {
   a: number;
   b: number;
   answer: number;
+  op: MathOperation;
 }
 
 export interface Mistake {
@@ -43,21 +46,36 @@ export interface BattleState {
   mistakes: Mistake[];
 }
 
-const generateProblem = (used: Set<string>): MathProblem => {
-  const all: [number, number][] = [];
-  for (let a = 1; a <= 10; a++) {
-    for (let b = a; b <= 10; b++) {
-      const key = `${a}x${b}`;
-      if (!used.has(key)) all.push([a, b]);
+const generateProblem = (used: Set<string>, op: MathOperation): MathProblem => {
+  if (op === "multiply") {
+    const all: [number, number][] = [];
+    for (let a = 1; a <= 10; a++) {
+      for (let b = a; b <= 10; b++) {
+        const key = `${a}x${b}`;
+        if (!used.has(key)) all.push([a, b]);
+      }
     }
+    if (all.length === 0) used.clear();
+    const pool = all.length > 0 ? all : [[1, 1] as [number, number]];
+    const [x, y] = pool[Math.floor(Math.random() * pool.length)];
+    const [a, b] = Math.random() < 0.5 ? [x, y] : [y, x];
+    used.add(`${Math.min(a, b)}x${Math.max(a, b)}`);
+    return { a, b, answer: a * b, op };
   }
-  if (all.length === 0) used.clear();
-  const pool = all.length > 0 ? all : [[1, 1] as [number, number]];
-  const [x, y] = pool[Math.floor(Math.random() * pool.length)];
-  const [a, b] = Math.random() < 0.5 ? [x, y] : [y, x];
-  used.add(`${Math.min(a, b)}x${Math.max(a, b)}`);
-  return { a, b, answer: a * b };
+
+  if (op === "add") {
+    const a = Math.floor(Math.random() * 90) + 10;
+    const b = Math.floor(Math.random() * 90) + 10;
+    return { a, b, answer: a + b, op };
+  }
+
+  // subtract — ensure positive result
+  const b = Math.floor(Math.random() * 50) + 10;
+  const answer = Math.floor(Math.random() * 50) + 1;
+  const a = b + answer;
+  return { a, b, answer, op };
 };
+const OP_SYMBOLS: Record<MathOperation, string> = { multiply: "×", add: "+", subtract: "−" };
 
 const calcDamage = (elapsedMs: number, correct: boolean, bonusDmg: number, bonusTime: number): number => {
   if (!correct) return 0;
@@ -72,13 +90,13 @@ interface EnemyConfig {
   enemyName: string;
 }
 
-export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1, t: Translator) => {
+export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1, t: Translator, operation: MathOperation = "multiply") => {
   const timerRef = useRef<number | null>(null);
   const usedProblems = useRef<Set<string>>(new Set());
 
   const createInitialState = useCallback((): BattleState => {
     usedProblems.current.clear();
-    const problem = generateProblem(usedProblems.current);
+    const problem = generateProblem(usedProblems.current, operation);
     return {
       playerCreature: { id: "player", name: t("player.name"), health: playerMaxHp, maxHealth: playerMaxHp },
       enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
@@ -95,7 +113,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       pendingReward: null,
       mistakes: [],
     };
-  }, [enemyConfig, playerMaxHp, t]);
+  }, [enemyConfig, playerMaxHp, t, operation]);
 
   const [state, setState] = useState<BattleState>(createInitialState);
 
@@ -119,9 +137,10 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       const newEnemyHealth = correct ? Math.max(0, prev.enemyCreature.health - damage) : prev.enemyCreature.health;
       const seconds = (elapsed / 1000).toFixed(1);
 
+      const opSym = OP_SYMBOLS[prev.currentProblem.op];
       const log = correct
-        ? t("battle.logCorrect", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer, t: seconds, dmg: damage })
-        : t("battle.logWrong", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer });
+        ? t("battle.logCorrect", { a: prev.currentProblem.a, op: opSym, b: prev.currentProblem.b, ans: prev.currentProblem.answer, t: seconds, dmg: damage })
+        : t("battle.logWrong", { a: prev.currentProblem.a, op: opSym, b: prev.currentProblem.b, ans: prev.currentProblem.answer });
 
       const gameOver = newEnemyHealth <= 0;
 
@@ -158,7 +177,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         const log = t("battle.logEnemyAttack", { name: prev.enemyCreature.name, dmg: enemyDamage });
         const gameOver = newPlayerHealth <= 0;
         const nextRound = prev.round + 1;
-        const nextProblem = generateProblem(usedProblems.current);
+        const nextProblem = generateProblem(usedProblems.current, operation);
 
         return {
           ...prev,

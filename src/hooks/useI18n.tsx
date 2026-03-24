@@ -73,13 +73,21 @@ const translations = {
   "hud.level": { ru: "Уровень", en: "Level", pt: "Nível" },
 
   // Battle log templates
-  "battle.logCorrect": { ru: "✓ {a} × {b} = {ans} за {t}с → {dmg} урона!", en: "✓ {a} × {b} = {ans} in {t}s → {dmg} damage!", pt: "✓ {a} × {b} = {ans} em {t}s → {dmg} dano!" },
-  "battle.logWrong": { ru: "✗ Неправильно! {a} × {b} = {ans}. Пропуск хода.", en: "✗ Wrong! {a} × {b} = {ans}. Turn skipped.", pt: "✗ Errado! {a} × {b} = {ans}. Turno perdido." },
+  "battle.logCorrect": { ru: "✓ {a} {op} {b} = {ans} за {t}с → {dmg} урона!", en: "✓ {a} {op} {b} = {ans} in {t}s → {dmg} damage!", pt: "✓ {a} {op} {b} = {ans} em {t}s → {dmg} dano!" },
+  "battle.logWrong": { ru: "✗ Неправильно! {a} {op} {b} = {ans}. Пропуск хода.", en: "✗ Wrong! {a} {op} {b} = {ans}. Turn skipped.", pt: "✗ Errado! {a} {op} {b} = {ans}. Turno perdido." },
   "battle.logEnemyAttack": { ru: "{name} атакует → {dmg} урона!", en: "{name} attacks → {dmg} damage!", pt: "{name} ataca → {dmg} dano!" },
 
   // Creature operations
   "creature.shadow": { ru: "Тень", en: "Shadow", pt: "Sombra" },
   "creature.multiplication": { ru: "Умножение", en: "Multiplication", pt: "Multiplicação" },
+  "creature.addition": { ru: "Сложение", en: "Addition", pt: "Adição" },
+  "creature.subtraction": { ru: "Вычитание", en: "Subtraction", pt: "Subtração" },
+
+  // Operation selector
+  "op.multiply": { ru: "Умножение", en: "Multiply", pt: "Multiplicação" },
+  "op.add": { ru: "Сложение", en: "Addition", pt: "Adição" },
+  "op.subtract": { ru: "Вычитание", en: "Subtraction", pt: "Subtração" },
+  "op.unlockAt3": { ru: "Разблокируется на ур. 3", en: "Unlocks at level 3", pt: "Desbloqueado no nv. 3" },
 
   // Time suffix
   "battle.timeSuffix": { ru: "с", en: "s", pt: "s" },
