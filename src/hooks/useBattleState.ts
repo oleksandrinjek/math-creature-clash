@@ -175,7 +175,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         const log = t("battle.logEnemyAttack", { name: prev.enemyCreature.name, dmg: enemyDamage });
         const gameOver = newPlayerHealth <= 0;
         const nextRound = prev.round + 1;
-        const nextProblem = generateProblem(usedProblems.current);
+        const nextProblem = generateProblem(usedProblems.current, operation);
 
         return {
           ...prev,
