@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
+type Translator = (key: string, params?: Record<string, string | number>) => string;
 export interface Creature {
   id: string;
   name: string;
@@ -71,7 +72,7 @@ interface EnemyConfig {
   enemyName: string;
 }
 
-export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1) => {
+export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1, t: Translator) => {
   const timerRef = useRef<number | null>(null);
   const usedProblems = useRef<Set<string>>(new Set());
 
@@ -79,12 +80,12 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
     usedProblems.current.clear();
     const problem = generateProblem(usedProblems.current);
     return {
-      playerCreature: { id: "player", name: "Умножитель", health: playerMaxHp, maxHealth: playerMaxHp },
+      playerCreature: { id: "player", name: t("player.name"), health: playerMaxHp, maxHealth: playerMaxHp },
       enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
       currentProblem: problem,
       playerInput: "",
       isPlayerTurn: true,
-      battleLog: ["Бой начинается! Решай примеры быстрее!"],
+      battleLog: [t("battle.start")],
       projectile: null,
       gameOver: false,
       winner: null,
@@ -94,7 +95,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       pendingReward: null,
       mistakes: [],
     };
-  }, [enemyConfig, playerMaxHp]);
+  }, [enemyConfig, playerMaxHp, t]);
 
   const [state, setState] = useState<BattleState>(createInitialState);
 
@@ -119,8 +120,8 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       const seconds = (elapsed / 1000).toFixed(1);
 
       const log = correct
-        ? `✓ ${prev.currentProblem.a} × ${prev.currentProblem.b} = ${prev.currentProblem.answer} за ${seconds}с → ${damage} урона!`
-        : `✗ Неправильно! ${prev.currentProblem.a} × ${prev.currentProblem.b} = ${prev.currentProblem.answer}. Пропуск хода.`;
+        ? t("battle.logCorrect", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer, t: seconds, dmg: damage })
+        : t("battle.logWrong", { a: prev.currentProblem.a, b: prev.currentProblem.b, ans: prev.currentProblem.answer });
 
       const gameOver = newEnemyHealth <= 0;
 
@@ -154,7 +155,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
         const { enemyMinDmg, enemyMaxDmg } = enemyConfig;
         const enemyDamage = Math.floor(Math.random() * (enemyMaxDmg - enemyMinDmg + 1)) + enemyMinDmg;
         const newPlayerHealth = Math.max(0, prev.playerCreature.health - enemyDamage);
-        const log = `${prev.enemyCreature.name} атакует → ${enemyDamage} урона!`;
+        const log = t("battle.logEnemyAttack", { name: prev.enemyCreature.name, dmg: enemyDamage });
         const gameOver = newPlayerHealth <= 0;
         const nextRound = prev.round + 1;
         const nextProblem = generateProblem(usedProblems.current);

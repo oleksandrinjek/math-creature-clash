@@ -71,6 +71,18 @@ const translations = {
 
   // HUD
   "hud.level": { ru: "Уровень", en: "Level", pt: "Nível" },
+
+  // Battle log templates
+  "battle.logCorrect": { ru: "✓ {a} × {b} = {ans} за {t}с → {dmg} урона!", en: "✓ {a} × {b} = {ans} in {t}s → {dmg} damage!", pt: "✓ {a} × {b} = {ans} em {t}s → {dmg} dano!" },
+  "battle.logWrong": { ru: "✗ Неправильно! {a} × {b} = {ans}. Пропуск хода.", en: "✗ Wrong! {a} × {b} = {ans}. Turn skipped.", pt: "✗ Errado! {a} × {b} = {ans}. Turno perdido." },
+  "battle.logEnemyAttack": { ru: "{name} атакует → {dmg} урона!", en: "{name} attacks → {dmg} damage!", pt: "{name} ataca → {dmg} dano!" },
+
+  // Creature operations
+  "creature.shadow": { ru: "Тень", en: "Shadow", pt: "Sombra" },
+  "creature.multiplication": { ru: "Умножение", en: "Multiplication", pt: "Multiplicação" },
+
+  // Time suffix
+  "battle.timeSuffix": { ru: "с", en: "s", pt: "s" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
@@ -78,7 +90,7 @@ type TranslationKey = keyof typeof translations;
 interface I18nContextType {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextType | null>(null);
@@ -86,8 +98,14 @@ const I18nContext = createContext<I18nContextType | null>(null);
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLang] = useState<Lang>("ru");
 
-  const t = useCallback((key: TranslationKey): string => {
-    return translations[key]?.[lang] ?? key;
+  const t = useCallback((key: TranslationKey, params?: Record<string, string | number>): string => {
+    let result: string = translations[key]?.[lang] ?? key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        result = result.replace(`{${k}}`, String(v));
+      });
+    }
+    return result;
   }, [lang]);
 
   return (

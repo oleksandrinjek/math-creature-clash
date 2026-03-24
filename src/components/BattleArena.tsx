@@ -29,7 +29,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const bonusDmg = progress.upgrades.bonusDmg;
   const bonusTime = progress.upgrades.bonusTime;
 
-  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level);
+  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level, t);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
   const [countdown, setCountdown] = useState(3);
@@ -119,7 +119,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
           maxHealth={state.enemyCreature.maxHealth}
           side="enemy"
           isActive={!state.isPlayerTurn && !state.gameOver}
-          operation="Тень"
+          operation={t("creature.shadow")}
         />
       </div>
 
@@ -215,7 +215,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
           maxHealth={state.playerCreature.maxHealth}
           side="player"
           isActive={state.isPlayerTurn && !state.gameOver}
-          operation="Умножение"
+          operation={t("creature.multiplication")}
           skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
         />
       </div>
