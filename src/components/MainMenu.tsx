@@ -46,9 +46,10 @@ const SKIN_COLORS: Record<SkinId, string> = {
   golden: "bg-accent/20 border-accent",
 };
 
-const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuySkin, onEquipSkin }: MainMenuProps) => {
+const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuySkin, onEquipSkin, operation, onSetOperation }: MainMenuProps) => {
   const { t, lang, setLang } = useI18n();
   const langs: Lang[] = ["ru", "en", "pt"];
+  const unlocked = progress.level >= 3;
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-arena arena-grid">
