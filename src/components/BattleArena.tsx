@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useBattleState } from "@/hooks/useBattleState";
+import { useBattleState, MathOperation } from "@/hooks/useBattleState";
 import { PlayerProgress, SKIN_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n } from "@/hooks/useI18n";
 import CreatureCard from "./CreatureCard";
