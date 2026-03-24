@@ -239,7 +239,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
               <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.a}
               </span>
-              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">×</span>
+              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">{state.currentProblem ? OP_SYMBOLS[state.currentProblem.op] : "×"}</span>
               <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.b}
               </span>
