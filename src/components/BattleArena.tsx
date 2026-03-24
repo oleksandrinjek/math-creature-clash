@@ -32,7 +32,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
   const bonusDmg = progress.upgrades.bonusDmg;
   const bonusTime = progress.upgrades.bonusTime;
 
-  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level, t);
+  const { state, setInput, submitAnswer, resetBattle, resetTimer } = useBattleState(enemyConfig, playerMaxHp, progress.level, t, operation);
   const inputRef = useRef<HTMLInputElement>(null);
   const [elapsed, setElapsed] = useState(0);
   const [countdown, setCountdown] = useState(3);
