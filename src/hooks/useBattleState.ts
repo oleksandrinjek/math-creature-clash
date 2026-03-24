@@ -72,7 +72,7 @@ interface EnemyConfig {
   enemyName: string;
 }
 
-export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1) => {
+export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 100, playerLevel: number = 1, t: Translator) => {
   const timerRef = useRef<number | null>(null);
   const usedProblems = useRef<Set<string>>(new Set());
 
@@ -80,12 +80,12 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
     usedProblems.current.clear();
     const problem = generateProblem(usedProblems.current);
     return {
-      playerCreature: { id: "player", name: "Умножитель", health: playerMaxHp, maxHealth: playerMaxHp },
+      playerCreature: { id: "player", name: t("player.name"), health: playerMaxHp, maxHealth: playerMaxHp },
       enemyCreature: { id: "enemy", name: enemyConfig.enemyName, health: enemyConfig.enemyHp, maxHealth: enemyConfig.enemyHp },
       currentProblem: problem,
       playerInput: "",
       isPlayerTurn: true,
-      battleLog: ["Бой начинается! Решай примеры быстрее!"],
+      battleLog: [t("battle.start")],
       projectile: null,
       gameOver: false,
       winner: null,
@@ -95,7 +95,7 @@ export const useBattleState = (enemyConfig: EnemyConfig, playerMaxHp: number = 1
       pendingReward: null,
       mistakes: [],
     };
-  }, [enemyConfig, playerMaxHp]);
+  }, [enemyConfig, playerMaxHp, t]);
 
   const [state, setState] = useState<BattleState>(createInitialState);
 
