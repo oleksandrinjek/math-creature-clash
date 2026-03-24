@@ -119,7 +119,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
           maxHealth={state.enemyCreature.maxHealth}
           side="enemy"
           isActive={!state.isPlayerTurn && !state.gameOver}
-          operation="Тень"
+          operation={t("creature.shadow")}
         />
       </div>
 
