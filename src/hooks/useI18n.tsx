@@ -99,7 +99,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLang] = useState<Lang>("ru");
 
   const t = useCallback((key: TranslationKey, params?: Record<string, string | number>): string => {
-    let result = translations[key]?.[lang] ?? key;
+    let result: string = translations[key]?.[lang] ?? key;
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         result = result.replace(`{${k}}`, String(v));
