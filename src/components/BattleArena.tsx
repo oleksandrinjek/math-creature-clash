@@ -218,7 +218,7 @@ const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMen
           maxHealth={state.playerCreature.maxHealth}
           side="player"
           isActive={state.isPlayerTurn && !state.gameOver}
-          operation={t("creature.multiplication")}
+          operation={t(operation === "add" ? "creature.addition" : operation === "subtract" ? "creature.subtraction" : "creature.multiplication")}
           skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
         />
       </div>
