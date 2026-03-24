@@ -21,9 +21,12 @@ interface BattleArenaProps {
   addRewards: (xp: number, coins: number) => void;
   enemyConfig: EnemyConfig;
   onReturnToMenu: () => void;
+  operation: MathOperation;
 }
 
-const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMenu }: BattleArenaProps) => {
+const OP_SYMBOLS: Record<MathOperation, string> = { multiply: "×", add: "+", subtract: "−" };
+
+const BattleArena = ({ progress, levelUp, addRewards, enemyConfig, onReturnToMenu, operation }: BattleArenaProps) => {
   const { t } = useI18n();
   const playerMaxHp = 100 + progress.upgrades.maxHp;
   const bonusDmg = progress.upgrades.bonusDmg;
