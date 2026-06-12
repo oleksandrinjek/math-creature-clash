@@ -91,7 +91,7 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
       {/* Tabs */}
       <div className="flex-1 flex flex-col items-center px-4 min-h-0 overflow-hidden">
         <Tabs defaultValue="upgrades" className="w-full max-w-md flex flex-col flex-1 min-h-0">
-          <TabsList className="w-full grid grid-cols-3 bg-card border border-border">
+          <TabsList className="w-full grid grid-cols-4 bg-card border border-border">
             <TabsTrigger value="upgrades" className="font-mono text-xs data-[state=active]:text-player-energy">
               <Zap size={14} className="mr-1" />
               {t("menu.upgrades")}
@@ -103,6 +103,10 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
             <TabsTrigger value="skins" className="font-mono text-xs data-[state=active]:text-player-energy">
               <Palette size={14} className="mr-1" />
               {t("menu.skins")}
+            </TabsTrigger>
+            <TabsTrigger value="companions" className="font-mono text-xs data-[state=active]:text-player-energy">
+              <PawPrint size={14} className="mr-1" />
+              {t("menu.companions")}
             </TabsTrigger>
           </TabsList>
 
