@@ -186,6 +186,27 @@ export const usePlayerProgress = () => {
     });
   }, []);
 
+  const buyCompanion = useCallback((id: CompanionId) => {
+    setProgress((prev) => {
+      if (prev.ownedCompanions.includes(id)) return prev;
+      const def = COMPANION_DEFS.find((d) => d.id === id)!;
+      if (prev.coins < def.cost) return prev;
+      return {
+        ...prev,
+        coins: prev.coins - def.cost,
+        ownedCompanions: [...prev.ownedCompanions, id],
+        activeCompanion: prev.activeCompanion ?? id,
+      };
+    });
+  }, []);
+
+  const equipCompanion = useCallback((id: CompanionId | null) => {
+    setProgress((prev) => {
+      if (id !== null && !prev.ownedCompanions.includes(id)) return prev;
+      return { ...prev, activeCompanion: prev.activeCompanion === id ? null : id };
+    });
+  }, []);
+
   const getEnemyScale = useCallback((level: number) => {
     const nameKey = level < 3 ? "enemy.shadow" : level < 6 ? "enemy.gloom" : level < 10 ? "enemy.void" : "enemy.absolute";
     return {
@@ -196,5 +217,5 @@ export const usePlayerProgress = () => {
     };
   }, [t]);
 
-  return { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, getEnemyScale };
+  return { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, buyCompanion, equipCompanion, getEnemyScale };
 };
