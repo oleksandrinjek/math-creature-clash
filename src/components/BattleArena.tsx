@@ -295,19 +295,19 @@ const BattleArena = ({
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl sm:text-3xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.a}
               </span>
-              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">
+              <span className="text-xl sm:text-2xl font-mono text-creature-bone">
                 {state.currentProblem
                   ? OP_SYMBOLS[state.currentProblem.op]
                   : "×"}
               </span>
-              <span className="text-4xl sm:text-5xl font-mono font-bold text-player-energy text-glow-cyan">
+              <span className="text-2xl sm:text-3xl font-mono font-bold text-player-energy text-glow-cyan">
                 {state.currentProblem.b}
               </span>
-              <span className="text-3xl sm:text-4xl font-mono text-creature-bone">
+              <span className="text-xl sm:text-2xl font-mono text-creature-bone">
                 =
               </span>
 
@@ -320,7 +320,7 @@ const BattleArena = ({
                 onKeyDown={handleKeyDown}
                 disabled={!state.isPlayerTurn || state.gameOver}
                 placeholder="?"
-                className="w-20 sm:w-24 h-14 sm:h-16 text-center text-3xl sm:text-4xl font-mono font-bold rounded-md border-2 border-border bg-slot-empty text-foreground placeholder:text-muted-foreground focus:border-player-energy focus:outline-none focus:ring-0 transition-colors disabled:opacity-30"
+                className="w-16 sm:w-20 h-10 sm:h-12 text-center text-2xl sm:text-3xl font-mono font-bold rounded-md border-2 border-border bg-slot-empty text-foreground placeholder:text-muted-foreground focus:border-player-energy focus:outline-none focus:ring-0 transition-colors disabled:opacity-30"
                 autoComplete="off"
               />
 
@@ -329,7 +329,7 @@ const BattleArena = ({
                 disabled={
                   !state.isPlayerTurn || !state.playerInput || state.gameOver
                 }
-                className="w-14 h-14 sm:h-16 rounded-md border border-player-energy bg-muted text-player-energy flex items-center justify-center disabled:opacity-20 disabled:border-border disabled:text-muted-foreground transition-all"
+                className="w-10 sm:w-12 h-10 sm:h-12 rounded-md border border-player-energy bg-muted text-player-energy flex items-center justify-center disabled:opacity-20 disabled:border-border disabled:text-muted-foreground transition-all"
                 whileHover={
                   state.playerInput
                     ? { boxShadow: "0 0 20px hsl(180 100% 50% / 0.5)" }
@@ -337,7 +337,7 @@ const BattleArena = ({
                 }
                 whileTap={state.playerInput ? { scale: 0.95 } : {}}
               >
-                <Send size={20} />
+                <Send size={18} />
               </motion.button>
             </div>
           </div>
