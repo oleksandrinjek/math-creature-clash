@@ -42,6 +42,20 @@ const translations = {
   "skin.equipped": { ru: "Надето", en: "Equipped", pt: "Equipado" },
   "skin.equip": { ru: "Надеть", en: "Equip", pt: "Equipar" },
 
+  // Companions
+  "companion.bonecub.label":     { ru: "Костеныш",   en: "Bonecub",     pt: "Ossinho" },
+  "companion.bonecub.desc":      { ru: "+3 к урону", en: "+3 damage",   pt: "+3 dano" },
+  "companion.swiftwing.label":   { ru: "Быстрокрыл", en: "Swiftwing",   pt: "Asa Veloz" },
+  "companion.swiftwing.desc":    { ru: "+1с до снижения урона", en: "+1s before damage decay", pt: "+1s antes da redução" },
+  "companion.shieldspawn.label": { ru: "Щитоспор",   en: "Shieldspawn", pt: "Escudinho" },
+  "companion.shieldspawn.desc":  { ru: "+25 макс. HP", en: "+25 max HP", pt: "+25 HP máx" },
+  "companion.goldmite.label":    { ru: "Златоклещ",  en: "Goldmite",    pt: "Áurio" },
+  "companion.goldmite.desc":     { ru: "+30% монет за победу", en: "+30% coins per win", pt: "+30% moedas por vitória" },
+  "companion.none":              { ru: "Без питомца", en: "No companion", pt: "Sem mascote" },
+  "companion.active":            { ru: "Активен",    en: "Active",      pt: "Ativo" },
+  "companion.equip":             { ru: "Выбрать",    en: "Choose",      pt: "Escolher" },
+  "companion.unequip":           { ru: "Снять",      en: "Unequip",     pt: "Remover" },
+
   // Battle
   "battle.start": { ru: "Бой начинается! Решай примеры быстрее!", en: "Battle begins! Solve problems fast!", pt: "A batalha começa! Resolva rápido!" },
   "battle.solve": { ru: "Решай!", en: "Solve!", pt: "Resolva!" },
