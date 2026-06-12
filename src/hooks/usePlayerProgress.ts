@@ -17,6 +17,8 @@ export interface Inventory {
 
 export type SkinId = "default" | "fire" | "ice" | "shadow" | "golden";
 
+export type CompanionId = "bonecub" | "swiftwing" | "goldmite" | "shieldspawn";
+
 export interface PlayerProgress {
   level: number;
   xp: number;
@@ -27,6 +29,8 @@ export interface PlayerProgress {
   inventory: Inventory;
   ownedSkins: SkinId[];
   activeSkin: SkinId;
+  ownedCompanions: CompanionId[];
+  activeCompanion: CompanionId | null;
 }
 
 const calcXpToNext = (level: number) => 50 + level * 30;
