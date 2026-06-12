@@ -238,6 +238,56 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
               })}
             </div>
           </TabsContent>
+
+          {/* Companions tab */}
+          <TabsContent value="companions" className="flex-1 overflow-y-auto min-h-0 mt-3">
+            <div className="grid gap-3">
+              {progress.activeCompanion && (
+                <button
+                  onClick={() => onEquipCompanion(progress.activeCompanion)}
+                  className="text-xs font-mono text-muted-foreground hover:text-foreground self-end"
+                >
+                  {t("companion.unequip")} ({t(`companion.${progress.activeCompanion}.label` as any)})
+                </button>
+              )}
+              {COMPANION_DEFS.map((c) => {
+                const owned = progress.ownedCompanions.includes(c.id);
+                const active = progress.activeCompanion === c.id;
+                const canAfford = progress.coins >= c.cost;
+                return (
+                  <motion.button
+                    key={c.id}
+                    onClick={() => (owned ? onEquipCompanion(c.id) : onBuyCompanion(c.id))}
+                    disabled={!owned && !canAfford}
+                    className={`flex items-center gap-4 p-4 rounded-lg border transition-colors disabled:cursor-not-allowed ${
+                      active
+                        ? "bg-player-energy/20 border-2 border-player-energy"
+                        : "border-border bg-card hover:bg-muted disabled:opacity-40"
+                    }`}
+                    whileHover={!active ? { scale: 1.02 } : {}}
+                    whileTap={!active ? { scale: 0.98 } : {}}
+                  >
+                    <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center text-2xl">
+                      {c.emoji}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="font-mono font-bold text-foreground block">{t(`companion.${c.id}.label` as any)}</span>
+                      <span className="text-xs font-mono text-muted-foreground">{t(`companion.${c.id}.desc` as any)}</span>
+                    </div>
+                    <div className="text-right">
+                      {active ? (
+                        <span className="text-xs font-mono text-player-energy">{t("companion.active")}</span>
+                      ) : owned ? (
+                        <span className="text-xs font-mono text-muted-foreground">{t("companion.equip")}</span>
+                      ) : (
+                        <span className={`text-sm font-mono font-bold ${canAfford ? "text-accent" : "text-muted-foreground"}`}>🪙 {c.cost}</span>
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
