@@ -210,7 +210,7 @@ const BattleArena = ({
             {state.winner === "player" && (
               <span className="text-xs font-mono text-accent">
                 {t("battle.victoryBonus")} +20 XP · +
-                {15 + (progress.level - 1) * 2} 🪙
+                {Math.round((15 + (progress.level - 1) * 2) * coinMult)} 🪙
               </span>
             )}
 
@@ -238,7 +238,7 @@ const BattleArena = ({
               <button
                 onClick={() => {
                   if (state.winner === "player")
-                    addRewards(20, 15 + (progress.level - 1) * 2);
+                    addRewards(20, Math.round((15 + (progress.level - 1) * 2) * coinMult));
                   onReturnToMenu();
                 }}
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
@@ -249,7 +249,7 @@ const BattleArena = ({
               <button
                 onClick={() => {
                   if (state.winner === "player")
-                    addRewards(20, 15 + (progress.level - 1) * 2);
+                    addRewards(20, Math.round((15 + (progress.level - 1) * 2) * coinMult));
                   resetBattle();
                   setCountdown(3);
                 }}
