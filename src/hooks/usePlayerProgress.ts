@@ -45,6 +45,8 @@ const initialProgress = (): PlayerProgress => ({
   inventory: { healPotion: 0, shield: 0, doubleDmg: 0, xpBoost: 0, coinBoost: 0 },
   ownedSkins: ["default"],
   activeSkin: "default",
+  ownedCompanions: [],
+  activeCompanion: null,
 });
 
 export const UPGRADE_DEFS = [
