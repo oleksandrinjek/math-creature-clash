@@ -82,6 +82,23 @@ export const SKIN_DEFS: SkinDef[] = [
   { id: "golden", cost: 80, hue: "40deg" },
 ];
 
+export interface CompanionDef {
+  id: CompanionId;
+  cost: number;
+  emoji: string;
+  bonusDmg: number;
+  bonusTime: number;
+  bonusHp: number;
+  coinMultiplier: number; // e.g. 0.3 = +30%
+}
+
+export const COMPANION_DEFS: CompanionDef[] = [
+  { id: "bonecub",     cost: 40,  emoji: "🦴", bonusDmg: 3, bonusTime: 0, bonusHp: 0,  coinMultiplier: 0 },
+  { id: "swiftwing",   cost: 50,  emoji: "🦅", bonusDmg: 0, bonusTime: 1, bonusHp: 0,  coinMultiplier: 0 },
+  { id: "shieldspawn", cost: 60,  emoji: "🐢", bonusDmg: 0, bonusTime: 0, bonusHp: 25, coinMultiplier: 0 },
+  { id: "goldmite",    cost: 80,  emoji: "✨", bonusDmg: 0, bonusTime: 0, bonusHp: 0,  coinMultiplier: 0.3 },
+];
+
 export const getUpgradeLevel = (upgrades: Upgrades, key: keyof Upgrades): number => {
   const def = UPGRADE_DEFS.find((d) => d.key === key)!;
   return upgrades[key] / def.perLevel;
