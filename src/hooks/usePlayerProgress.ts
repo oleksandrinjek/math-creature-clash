@@ -17,6 +17,8 @@ export interface Inventory {
 
 export type SkinId = "default" | "fire" | "ice" | "shadow" | "golden";
 
+export type CompanionId = "bonecub" | "swiftwing" | "goldmite" | "shieldspawn";
+
 export interface PlayerProgress {
   level: number;
   xp: number;
@@ -27,6 +29,8 @@ export interface PlayerProgress {
   inventory: Inventory;
   ownedSkins: SkinId[];
   activeSkin: SkinId;
+  ownedCompanions: CompanionId[];
+  activeCompanion: CompanionId | null;
 }
 
 const calcXpToNext = (level: number) => 50 + level * 30;
@@ -41,6 +45,8 @@ const initialProgress = (): PlayerProgress => ({
   inventory: { healPotion: 0, shield: 0, doubleDmg: 0, xpBoost: 0, coinBoost: 0 },
   ownedSkins: ["default"],
   activeSkin: "default",
+  ownedCompanions: [],
+  activeCompanion: null,
 });
 
 export const UPGRADE_DEFS = [
@@ -74,6 +80,23 @@ export const SKIN_DEFS: SkinDef[] = [
   { id: "ice", cost: 30, hue: "180deg" },
   { id: "shadow", cost: 50, hue: "260deg" },
   { id: "golden", cost: 80, hue: "40deg" },
+];
+
+export interface CompanionDef {
+  id: CompanionId;
+  cost: number;
+  emoji: string;
+  bonusDmg: number;
+  bonusTime: number;
+  bonusHp: number;
+  coinMultiplier: number; // e.g. 0.3 = +30%
+}
+
+export const COMPANION_DEFS: CompanionDef[] = [
+  { id: "bonecub",     cost: 40,  emoji: "🦴", bonusDmg: 3, bonusTime: 0, bonusHp: 0,  coinMultiplier: 0 },
+  { id: "swiftwing",   cost: 50,  emoji: "🦅", bonusDmg: 0, bonusTime: 1, bonusHp: 0,  coinMultiplier: 0 },
+  { id: "shieldspawn", cost: 60,  emoji: "🐢", bonusDmg: 0, bonusTime: 0, bonusHp: 25, coinMultiplier: 0 },
+  { id: "goldmite",    cost: 80,  emoji: "✨", bonusDmg: 0, bonusTime: 0, bonusHp: 0,  coinMultiplier: 0.3 },
 ];
 
 export const getUpgradeLevel = (upgrades: Upgrades, key: keyof Upgrades): number => {
@@ -163,6 +186,27 @@ export const usePlayerProgress = () => {
     });
   }, []);
 
+  const buyCompanion = useCallback((id: CompanionId) => {
+    setProgress((prev) => {
+      if (prev.ownedCompanions.includes(id)) return prev;
+      const def = COMPANION_DEFS.find((d) => d.id === id)!;
+      if (prev.coins < def.cost) return prev;
+      return {
+        ...prev,
+        coins: prev.coins - def.cost,
+        ownedCompanions: [...prev.ownedCompanions, id],
+        activeCompanion: prev.activeCompanion ?? id,
+      };
+    });
+  }, []);
+
+  const equipCompanion = useCallback((id: CompanionId | null) => {
+    setProgress((prev) => {
+      if (id !== null && !prev.ownedCompanions.includes(id)) return prev;
+      return { ...prev, activeCompanion: prev.activeCompanion === id ? null : id };
+    });
+  }, []);
+
   const getEnemyScale = useCallback((level: number) => {
     const nameKey = level < 3 ? "enemy.shadow" : level < 6 ? "enemy.gloom" : level < 10 ? "enemy.void" : "enemy.absolute";
     return {
@@ -173,5 +217,5 @@ export const usePlayerProgress = () => {
     };
   }, [t]);
 
-  return { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, getEnemyScale };
+  return { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, buyCompanion, equipCompanion, getEnemyScale };
 };

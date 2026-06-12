@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useBattleState, MathOperation } from "@/hooks/useBattleState";
-import { PlayerProgress, SKIN_DEFS } from "@/hooks/usePlayerProgress";
+import { PlayerProgress, SKIN_DEFS, COMPANION_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n } from "@/hooks/useI18n";
 import CreatureCard from "./CreatureCard";
 import Projectile from "./Projectile";
@@ -40,9 +40,11 @@ const BattleArena = ({
   operation,
 }: BattleArenaProps) => {
   const { t } = useI18n();
-  const playerMaxHp = 100 + progress.upgrades.maxHp;
-  const bonusDmg = progress.upgrades.bonusDmg;
-  const bonusTime = progress.upgrades.bonusTime;
+  const companion = COMPANION_DEFS.find((c) => c.id === progress.activeCompanion);
+  const playerMaxHp = 100 + progress.upgrades.maxHp + (companion?.bonusHp ?? 0);
+  const bonusDmg = progress.upgrades.bonusDmg + (companion?.bonusDmg ?? 0);
+  const bonusTime = progress.upgrades.bonusTime + (companion?.bonusTime ?? 0);
+  const coinMult = 1 + (companion?.coinMultiplier ?? 0);
 
   const { state, setInput, submitAnswer, resetBattle, resetTimer } =
     useBattleState(enemyConfig, playerMaxHp, progress.level, t, operation);
@@ -208,7 +210,7 @@ const BattleArena = ({
             {state.winner === "player" && (
               <span className="text-xs font-mono text-accent">
                 {t("battle.victoryBonus")} +20 XP · +
-                {15 + (progress.level - 1) * 2} 🪙
+                {Math.round((15 + (progress.level - 1) * 2) * coinMult)} 🪙
               </span>
             )}
 
@@ -236,7 +238,7 @@ const BattleArena = ({
               <button
                 onClick={() => {
                   if (state.winner === "player")
-                    addRewards(20, 15 + (progress.level - 1) * 2);
+                    addRewards(20, Math.round((15 + (progress.level - 1) * 2) * coinMult));
                   onReturnToMenu();
                 }}
                 className="flex items-center gap-2 text-sm font-mono text-foreground bg-muted hover:bg-border px-4 py-2 rounded-md transition-colors"
@@ -247,7 +249,7 @@ const BattleArena = ({
               <button
                 onClick={() => {
                   if (state.winner === "player")
-                    addRewards(20, 15 + (progress.level - 1) * 2);
+                    addRewards(20, Math.round((15 + (progress.level - 1) * 2) * coinMult));
                   resetBattle();
                   setCountdown(3);
                 }}

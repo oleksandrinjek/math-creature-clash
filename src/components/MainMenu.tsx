@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Swords, Shield, Zap, Clock, ShoppingBag, Palette } from "lucide-react";
-import { PlayerProgress, Upgrades, Inventory, SkinId, getUpgradeLevel, getUpgradeCost, SHOP_ITEMS, SKIN_DEFS } from "@/hooks/usePlayerProgress";
+import { Swords, Shield, Zap, Clock, ShoppingBag, Palette, PawPrint } from "lucide-react";
+import { PlayerProgress, Upgrades, Inventory, SkinId, CompanionId, getUpgradeLevel, getUpgradeCost, SHOP_ITEMS, SKIN_DEFS, COMPANION_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n, LANG_LABELS, Lang } from "@/hooks/useI18n";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MathOperation } from "@/hooks/useBattleState";
@@ -12,6 +12,8 @@ interface MainMenuProps {
   onBuyShopItem: (key: keyof Inventory) => void;
   onBuySkin: (id: SkinId) => void;
   onEquipSkin: (id: SkinId) => void;
+  onBuyCompanion: (id: CompanionId) => void;
+  onEquipCompanion: (id: CompanionId | null) => void;
   operation: MathOperation;
   onSetOperation: (op: MathOperation) => void;
 }
@@ -46,7 +48,7 @@ const SKIN_COLORS: Record<SkinId, string> = {
   golden: "bg-accent/20 border-accent",
 };
 
-const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuySkin, onEquipSkin, operation, onSetOperation }: MainMenuProps) => {
+const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuySkin, onEquipSkin, onBuyCompanion, onEquipCompanion, operation, onSetOperation }: MainMenuProps) => {
   const { t, lang, setLang } = useI18n();
   const langs: Lang[] = ["ru", "en", "pt"];
   const unlocked = progress.level >= 3;
@@ -89,7 +91,7 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
       {/* Tabs */}
       <div className="flex-1 flex flex-col items-center px-4 min-h-0 overflow-hidden">
         <Tabs defaultValue="upgrades" className="w-full max-w-md flex flex-col flex-1 min-h-0">
-          <TabsList className="w-full grid grid-cols-3 bg-card border border-border">
+          <TabsList className="w-full grid grid-cols-4 bg-card border border-border">
             <TabsTrigger value="upgrades" className="font-mono text-xs data-[state=active]:text-player-energy">
               <Zap size={14} className="mr-1" />
               {t("menu.upgrades")}
@@ -101,6 +103,10 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
             <TabsTrigger value="skins" className="font-mono text-xs data-[state=active]:text-player-energy">
               <Palette size={14} className="mr-1" />
               {t("menu.skins")}
+            </TabsTrigger>
+            <TabsTrigger value="companions" className="font-mono text-xs data-[state=active]:text-player-energy">
+              <PawPrint size={14} className="mr-1" />
+              {t("menu.companions")}
             </TabsTrigger>
           </TabsList>
 
@@ -225,6 +231,56 @@ const MainMenu = ({ progress, onStartBattle, onBuyUpgrade, onBuyShopItem, onBuyS
                         <span className="text-xs font-mono text-muted-foreground">{t("skin.equip")}</span>
                       ) : (
                         <span className={`text-sm font-mono font-bold ${canAfford ? "text-accent" : "text-muted-foreground"}`}>🪙 {skin.cost}</span>
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          {/* Companions tab */}
+          <TabsContent value="companions" className="flex-1 overflow-y-auto min-h-0 mt-3">
+            <div className="grid gap-3">
+              {progress.activeCompanion && (
+                <button
+                  onClick={() => onEquipCompanion(progress.activeCompanion)}
+                  className="text-xs font-mono text-muted-foreground hover:text-foreground self-end"
+                >
+                  {t("companion.unequip")} ({t(`companion.${progress.activeCompanion}.label` as any)})
+                </button>
+              )}
+              {COMPANION_DEFS.map((c) => {
+                const owned = progress.ownedCompanions.includes(c.id);
+                const active = progress.activeCompanion === c.id;
+                const canAfford = progress.coins >= c.cost;
+                return (
+                  <motion.button
+                    key={c.id}
+                    onClick={() => (owned ? onEquipCompanion(c.id) : onBuyCompanion(c.id))}
+                    disabled={!owned && !canAfford}
+                    className={`flex items-center gap-4 p-4 rounded-lg border transition-colors disabled:cursor-not-allowed ${
+                      active
+                        ? "bg-player-energy/20 border-2 border-player-energy"
+                        : "border-border bg-card hover:bg-muted disabled:opacity-40"
+                    }`}
+                    whileHover={!active ? { scale: 1.02 } : {}}
+                    whileTap={!active ? { scale: 0.98 } : {}}
+                  >
+                    <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center text-2xl">
+                      {c.emoji}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="font-mono font-bold text-foreground block">{t(`companion.${c.id}.label` as any)}</span>
+                      <span className="text-xs font-mono text-muted-foreground">{t(`companion.${c.id}.desc` as any)}</span>
+                    </div>
+                    <div className="text-right">
+                      {active ? (
+                        <span className="text-xs font-mono text-player-energy">{t("companion.active")}</span>
+                      ) : owned ? (
+                        <span className="text-xs font-mono text-muted-foreground">{t("companion.equip")}</span>
+                      ) : (
+                        <span className={`text-sm font-mono font-bold ${canAfford ? "text-accent" : "text-muted-foreground"}`}>🪙 {c.cost}</span>
                       )}
                     </div>
                   </motion.button>
