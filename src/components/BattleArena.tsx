@@ -279,7 +279,7 @@ const BattleArena = ({
         />
       </div>
 
-      <div className="border-t border-border bg-card px-4 py-4 space-y-3">
+      <div className="border-t border-border bg-card px-4 py-2 space-y-2 shrink-0">
         {state.currentProblem && !state.gameOver && (
           <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-4 text-xs font-mono">
