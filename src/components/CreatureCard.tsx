@@ -18,13 +18,13 @@ const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skin
   const hueFilter = side === "player" && skinHue && skinHue !== "0deg" ? `hue-rotate(${skinHue})` : undefined;
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <h3 className="font-display text-lg font-semibold text-creature-bone">{name}</h3>
-      <span className={`text-xs font-mono uppercase tracking-widest ${side === "player" ? "text-player-energy" : "text-enemy-energy"}`}>
+    <div className="flex flex-col items-center gap-1 min-h-0">
+      <h3 className="font-display text-sm sm:text-base font-semibold text-creature-bone leading-tight">{name}</h3>
+      <span className={`text-[10px] font-mono uppercase tracking-widest leading-none ${side === "player" ? "text-player-energy" : "text-enemy-energy"}`}>
         {operation}
       </span>
       <motion.div
-        className={`relative w-32 h-32 sm:w-40 sm:h-40 ${isActive ? (side === "player" ? "animate-pulse-cyan" : "animate-pulse-magenta") : ""} rounded-lg`}
+        className={`relative w-20 h-20 sm:w-28 sm:h-28 ${isActive ? (side === "player" ? "animate-pulse-cyan" : "animate-pulse-magenta") : ""} rounded-lg`}
         animate={isActive ? { scale: [1, 1.03, 1] } : {}}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
@@ -35,7 +35,7 @@ const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skin
           style={hueFilter ? { filter: hueFilter } : undefined}
         />
       </motion.div>
-      <div className="w-36 sm:w-44">
+      <div className="w-32 sm:w-40">
         <HealthBar current={health} max={maxHealth} side={side} />
       </div>
     </div>
