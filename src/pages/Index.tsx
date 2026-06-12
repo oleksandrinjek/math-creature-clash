@@ -7,7 +7,7 @@ import { MathOperation } from "@/hooks/useBattleState";
 const Index = () => {
   const [screen, setScreen] = useState<"menu" | "battle">("menu");
   const [operation, setOperation] = useState<MathOperation>("multiply");
-  const { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, getEnemyScale } = usePlayerProgress();
+  const { progress, levelUp, addRewards, buyUpgrade, buyShopItem, buySkin, equipSkin, buyCompanion, equipCompanion, getEnemyScale } = usePlayerProgress();
   const enemyConfig = useMemo(() => getEnemyScale(progress.level), [progress.level, getEnemyScale]);
 
   if (screen === "menu") {
@@ -19,6 +19,8 @@ const Index = () => {
         onBuyShopItem={buyShopItem}
         onBuySkin={buySkin}
         onEquipSkin={equipSkin}
+        onBuyCompanion={buyCompanion}
+        onEquipCompanion={equipCompanion}
         operation={operation}
         onSetOperation={setOperation}
       />
