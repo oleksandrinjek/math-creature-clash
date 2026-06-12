@@ -40,9 +40,11 @@ const BattleArena = ({
   operation,
 }: BattleArenaProps) => {
   const { t } = useI18n();
-  const playerMaxHp = 100 + progress.upgrades.maxHp;
-  const bonusDmg = progress.upgrades.bonusDmg;
-  const bonusTime = progress.upgrades.bonusTime;
+  const companion = COMPANION_DEFS.find((c) => c.id === progress.activeCompanion);
+  const playerMaxHp = 100 + progress.upgrades.maxHp + (companion?.bonusHp ?? 0);
+  const bonusDmg = progress.upgrades.bonusDmg + (companion?.bonusDmg ?? 0);
+  const bonusTime = progress.upgrades.bonusTime + (companion?.bonusTime ?? 0);
+  const coinMult = 1 + (companion?.coinMultiplier ?? 0);
 
   const { state, setInput, submitAnswer, resetBattle, resetTimer } =
     useBattleState(enemyConfig, playerMaxHp, progress.level, t, operation);
