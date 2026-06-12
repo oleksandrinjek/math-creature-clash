@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Swords, Shield, Zap, Clock, ShoppingBag, Palette } from "lucide-react";
-import { PlayerProgress, Upgrades, Inventory, SkinId, getUpgradeLevel, getUpgradeCost, SHOP_ITEMS, SKIN_DEFS } from "@/hooks/usePlayerProgress";
+import { Swords, Shield, Zap, Clock, ShoppingBag, Palette, PawPrint } from "lucide-react";
+import { PlayerProgress, Upgrades, Inventory, SkinId, CompanionId, getUpgradeLevel, getUpgradeCost, SHOP_ITEMS, SKIN_DEFS, COMPANION_DEFS } from "@/hooks/usePlayerProgress";
 import { useI18n, LANG_LABELS, Lang } from "@/hooks/useI18n";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MathOperation } from "@/hooks/useBattleState";
@@ -12,6 +12,8 @@ interface MainMenuProps {
   onBuyShopItem: (key: keyof Inventory) => void;
   onBuySkin: (id: SkinId) => void;
   onEquipSkin: (id: SkinId) => void;
+  onBuyCompanion: (id: CompanionId) => void;
+  onEquipCompanion: (id: CompanionId | null) => void;
   operation: MathOperation;
   onSetOperation: (op: MathOperation) => void;
 }
