@@ -11,9 +11,10 @@ interface CreatureCardProps {
   isActive: boolean;
   operation: string;
   skinHue?: string;
+  companionEmoji?: string;
 }
 
-const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skinHue }: CreatureCardProps) => {
+const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skinHue, companionEmoji }: CreatureCardProps) => {
   const img = side === "player" ? playerImg : enemyImg;
   const hueFilter = side === "player" && skinHue && skinHue !== "0deg" ? `hue-rotate(${skinHue})` : undefined;
 
@@ -34,6 +35,17 @@ const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skin
           className="w-full h-full object-contain drop-shadow-lg"
           style={hueFilter ? { filter: hueFilter } : undefined}
         />
+        {side === "player" && companionEmoji && (
+          <motion.div
+            className="absolute -right-3 -bottom-1 text-2xl sm:text-3xl drop-shadow-[0_0_6px_hsl(180_100%_50%/0.6)]"
+            style={hueFilter ? { filter: hueFilter } : undefined}
+            animate={{ y: [0, -4, 0], rotate: [-5, 5, -5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            aria-label="companion"
+          >
+            {companionEmoji}
+          </motion.div>
+        )}
       </motion.div>
       <div className="w-32 sm:w-40">
         <HealthBar current={health} max={maxHealth} side={side} />
