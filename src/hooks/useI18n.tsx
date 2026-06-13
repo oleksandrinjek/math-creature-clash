@@ -8,7 +8,7 @@ const translations = {
   "menu.upgrades": { ru: "Улучшения", en: "Upgrades", pt: "Melhorias" },
   "menu.shop": { ru: "Магазин", en: "Shop", pt: "Loja" },
   "menu.skins": { ru: "Скины", en: "Skins", pt: "Skins" },
-  "menu.companions": { ru: "Питомцы", en: "Companions", pt: "Mascotes" },
+  "menu.companions": { ru: "Персонажи", en: "Characters", pt: "Personagens" },
   "menu.fight": { ru: "В бой!", en: "Fight!", pt: "Lutar!" },
   "menu.maxed": { ru: "МАКС", en: "MAX", pt: "MÁX" },
   "menu.damage": { ru: "урон", en: "damage", pt: "dano" },

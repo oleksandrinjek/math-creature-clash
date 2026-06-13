@@ -278,7 +278,7 @@ const BattleArena = ({
                 : "creature.multiplication",
           )}
           skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
-          companionEmoji={companion?.emoji}
+          companion={companion ? { emoji: companion.emoji, label: t(`companion.${companion.id}.label` as any) } : undefined}
         />
       </div>
 
