@@ -265,7 +265,7 @@ const BattleArena = ({
 
       <div className="flex-1 flex items-center justify-center min-h-0">
         <CreatureCard
-          name={state.playerCreature.name}
+          name={companion ? t(`companion.${companion.id}.label` as any) : state.playerCreature.name}
           health={state.playerCreature.health}
           maxHealth={state.playerCreature.maxHealth}
           side="player"
@@ -278,7 +278,6 @@ const BattleArena = ({
                 : "creature.multiplication",
           )}
           skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
-          companion={companion ? { emoji: companion.emoji, label: t(`companion.${companion.id}.label` as any) } : undefined}
         />
       </div>
 
