@@ -278,6 +278,7 @@ const BattleArena = ({
                 : "creature.multiplication",
           )}
           skinHue={SKIN_DEFS.find((s) => s.id === progress.activeSkin)?.hue}
+          companionId={progress.activeCompanion}
         />
       </div>
 

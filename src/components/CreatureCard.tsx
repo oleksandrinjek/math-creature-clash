@@ -1,6 +1,11 @@
 import { motion } from "framer-motion";
 import playerImg from "@/assets/creature-player.png";
 import enemyImg from "@/assets/creature-enemy.png";
+import bonecubImg from "@/assets/creature-bonecub.png";
+import swiftwingImg from "@/assets/creature-swiftwing.png";
+import shieldspawnImg from "@/assets/creature-shieldspawn.png";
+import goldmiteImg from "@/assets/creature-goldmite.png";
+import { CompanionId } from "@/hooks/usePlayerProgress";
 import HealthBar from "./HealthBar";
 
 interface CreatureCardProps {
@@ -11,10 +16,23 @@ interface CreatureCardProps {
   isActive: boolean;
   operation: string;
   skinHue?: string;
+  companionId?: CompanionId | null;
 }
 
-const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skinHue }: CreatureCardProps) => {
-  const img = side === "player" ? playerImg : enemyImg;
+const COMPANION_IMG: Record<CompanionId, string> = {
+  bonecub: bonecubImg,
+  swiftwing: swiftwingImg,
+  shieldspawn: shieldspawnImg,
+  goldmite: goldmiteImg,
+};
+
+const CreatureCard = ({ name, health, maxHealth, side, isActive, operation, skinHue, companionId }: CreatureCardProps) => {
+  const img =
+    side === "enemy"
+      ? enemyImg
+      : companionId
+        ? COMPANION_IMG[companionId]
+        : playerImg;
   const hueFilter = side === "player" && skinHue && skinHue !== "0deg" ? `hue-rotate(${skinHue})` : undefined;
 
   return (
