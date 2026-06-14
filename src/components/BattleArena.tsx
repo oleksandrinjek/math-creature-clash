@@ -5,6 +5,7 @@ import { useI18n } from "@/hooks/useI18n";
 import CreatureCard from "./CreatureCard";
 import Projectile from "./Projectile";
 import PlayerHUD from "./PlayerHUD";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { RotateCcw, Send, Home } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { battleMusic } from "@/assets/battle-music";
@@ -215,7 +216,7 @@ const BattleArena = ({
             )}
 
             {state.mistakes.length > 0 && (
-              <div className="mt-1 px-4 py-2 rounded-md bg-muted/80 border border-border max-w-xs w-full">
+              <ScrollArea className="mt-1 px-4 py-2 rounded-md bg-muted/80 border border-border max-w-xs w-full max-h-40">
                 <p className="text-xs font-mono text-muted-foreground mb-1">
                   {t("battle.reviewMistakes")}:
                 </p>
@@ -231,7 +232,7 @@ const BattleArena = ({
                     </p>
                   ))}
                 </div>
-              </div>
+              </ScrollArea>
             )}
 
             <div className="flex gap-2">
