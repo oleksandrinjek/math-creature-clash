@@ -216,23 +216,25 @@ const BattleArena = ({
             )}
 
             {state.mistakes.length > 0 && (
-              <ScrollArea className="mt-1 px-4 py-2 rounded-md bg-muted/80 border border-border max-w-xs w-full max-h-40">
+              <div className="mt-1 px-4 py-2 rounded-md bg-muted/80 border border-border max-w-xs w-full">
                 <p className="text-xs font-mono text-muted-foreground mb-1">
                   {t("battle.reviewMistakes")}:
                 </p>
-                <div className="space-y-0.5">
-                  {state.mistakes.map((m, i) => (
-                    <p key={i} className="text-xs font-mono">
-                      <span className="text-destructive line-through">
-                        {m.a} {OP_SYMBOLS[operation]} {m.b} = {m.playerAnswer}
-                      </span>
-                      <span className="text-player-energy ml-2">
-                        → {m.correctAnswer}
-                      </span>
-                    </p>
-                  ))}
-                </div>
-              </ScrollArea>
+                <ScrollArea className="h-40 w-full pr-2">
+                  <div className="space-y-0.5">
+                    {state.mistakes.map((m, i) => (
+                      <p key={i} className="text-xs font-mono">
+                        <span className="text-destructive line-through">
+                          {m.a} {OP_SYMBOLS[operation]} {m.b} = {m.playerAnswer}
+                        </span>
+                        <span className="text-player-energy ml-2">
+                          → {m.correctAnswer}
+                        </span>
+                      </p>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
             )}
 
             <div className="flex gap-2">
