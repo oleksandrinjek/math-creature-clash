@@ -216,14 +216,14 @@ const BattleArena = ({
             )}
 
             {state.mistakes.length > 0 && (
-              <div className="mt-1 px-4 py-2 rounded-md bg-muted/80 border border-border max-w-xs w-full">
-                <p className="text-xs font-mono text-muted-foreground mb-1">
+              <div className="mt-1 px-3 py-1.5 rounded-md bg-muted/80 border border-border max-w-xs w-full">
+                <p className="text-[10px] font-mono text-muted-foreground mb-1">
                   {t("battle.reviewMistakes")}:
                 </p>
-                <ScrollArea className="h-40 w-full pr-2">
+                <ScrollArea className="h-20 w-full pr-2">
                   <div className="space-y-0.5">
                     {state.mistakes.map((m, i) => (
-                      <p key={i} className="text-xs font-mono">
+                      <p key={i} className="text-[10px] font-mono leading-tight">
                         <span className="text-destructive line-through">
                           {m.a} {OP_SYMBOLS[operation]} {m.b} = {m.playerAnswer}
                         </span>
