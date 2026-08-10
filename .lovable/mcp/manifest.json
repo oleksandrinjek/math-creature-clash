@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "math-creature-combat",
+      "version": "0.1.0",
+      "title": "Math Creature Combat"
+    },
+    "tools": [
+      {
+        "name": "list_characters",
+        "title": "List characters",
+        "description": "List the playable creature, the buyable companion characters (with coin cost and battle bonus), and the enemy creatures.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_shop",
+        "title": "List shop, skins and upgrades",
+        "description": "List everything buyable with coins: permanent upgrades, consumable shop items, and creature skins.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_level_scaling",
+        "title": "Get level scaling",
+        "description": "Get the enemy name, enemy HP, enemy damage range and XP needed for the next level at a given player level.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Player level to inspect."
+            }
+          },
+          "required": [
+            "level"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "generate_math_problem",
+        "title": "Generate a math problem",
+        "description": "Generate a battle math problem (with its answer) for the given operation and player level.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "multiply",
+                "add",
+                "subtract"
+              ],
+              "description": "Math operation used in battle."
+            },
+            "level": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Player level; higher levels use bigger numbers."
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many problems to generate (default 1)."
+            }
+          },
+          "required": [
+            "operation",
+            "level"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
